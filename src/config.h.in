@@ -2,5 +2,6 @@
 #define CONFIG_H_IN
 
 #cmakedefine VERSION "@VERSION@"
+#cmakedefine01 HAS_BOOST_THREAD
 
 #endif // CONFIG_H_IN

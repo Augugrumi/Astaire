@@ -1,28 +1,27 @@
-#include <iostream>
-
 #include <pistache/endpoint.h>
+#include <pistache/router.h>
+
+#include "connection/connectionmanager.h"
+#include "connection/handler/helloworldhandler.h"
 #include "utils/log.h"
-
-class HelloHandler : public Pistache::Http::Handler {
-public:
-
-    HTTP_PROTOTYPE(HelloHandler)
-
-    void onRequest(const Pistache::Http::Request& request, Pistache::Http::ResponseWriter response) {
-        utils::Log::instance()->log(utils::Log::Level::trace, "Message arrived");
-        response.send(Pistache::Http::Code::Ok, "Hello, World");
-    }
-};
 
 
 int main()
 {
-    utils::Log::instance()->log(utils::Log::Level::debug, "Program started");
+    LOG(ldebug, "Program started");
     Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
     auto opts = Pistache::Http::Endpoint::options().threads(1);
     Pistache::Http::Endpoint server(addr);
-    server.init(opts);
-    server.setHandler(std::make_shared<HelloHandler>());
-    server.serve();
+
+    connection::handler::HelloWorldHandler* test = new connection::handler::HelloWorldHandler();
+    auto bind = Pistache::Rest::Routes::bind(&connection::handler::HelloWorldHandler::onRequest, test);
+
+    LOG(ldebug, "Handler created");
+    connection::ConnectionManager conn(addr, opts);
+    conn.addRoute("/hello", bind);
+    LOG(ldebug, "Handler added");
+
+    conn.run();
+
     return 0;
 }

@@ -2,26 +2,26 @@
 #define CONNECTIONMANAGER_H
 
 #include <memory>
-#include "handler/handler.h"
 #include <pistache/endpoint.h>
+#include <pistache/router.h>
 
 namespace connection {
 
-namespace PistacheConn = Pistache::Http;
+namespace PConn = Pistache::Http;
+namespace PReq = Pistache::Rest;
 
 class ConnectionManager {
 public:
     ConnectionManager(const Pistache::Address &,
-                      const PistacheConn::Endpoint::Options& options);
+                      const PConn::Endpoint::Options& options);
 
-    // FIXME - handler or route? :thinking:
-    // ConnectionManager* addHandler(const PistacheConn::Handler &);
+    ConnectionManager* addRoute(const std::string &, PReq::Route::Handler &);
     void run() const;
     void stop() const;
 
 private:
-    std::unique_ptr<handler::Handler> handler;
-    std::unique_ptr<PistacheConn::Endpoint> server;
+    std::unique_ptr<PConn::Endpoint> server;
+    std::unique_ptr<PReq::Router> router;
 };
 }
 
