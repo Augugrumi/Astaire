@@ -6,6 +6,7 @@
 
 #include "binding_handler.h"
 #include "../../utils/log.h"
+#include "asynctaskexecutor.h"
 
 namespace connection {
 namespace handler {

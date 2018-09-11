@@ -11,11 +11,11 @@ void HelloWorldHandler::onRequest(const PConn::Request& request,
                                   PConn::ResponseWriter response) {
     LOG(ldebug, "Hello World called");
 
-    std::thread test([] () {
-       LOG(ltrace, "In the async task");
-    });
+    auto async_task = [] () {
+        LOG(ltrace, "In the async task");
+    };
 
-    test.detach();
+    ASYNC_TASK(async_task);
 
     LOG(ldebug, "Another print");
 

@@ -3,7 +3,8 @@ add_executable(${PROJECT_NAME}
     "utils/log.cpp"
     "connection/connectionmanager.cpp"
     "connection/handler/binding_handler.cpp"
-    "connection/handler/helloworldhandler.cpp")
+    "connection/handler/helloworldhandler.cpp"
+    "connection/handler/asynctaskexecutor.cpp")
 
 # Set library version
 set_target_properties(
