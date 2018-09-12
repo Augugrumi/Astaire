@@ -3,7 +3,7 @@
 namespace connection {
 namespace handler {
 
-AsyncTaskExecutor* AsyncTaskExecutor::inst = nullptr;
+AsyncTaskExecutor* AsyncTaskExecutor::inst = new AsyncTaskExecutor();
 
 AsyncTaskExecutor::AsyncTaskExecutor() noexcept {
 #if HAS_BOOST_THREAD
@@ -30,9 +30,9 @@ void AsyncTaskExecutor::submit_task(const std::function<void()> & task) const {
 
 AsyncTaskExecutor* AsyncTaskExecutor::instance() {
     // FIXME possible race condition!!
-    if (inst == nullptr) {
+    /*if (inst == nullptr) {
         inst = new AsyncTaskExecutor();
-    }
+    }*/
     return inst;
 }
 }

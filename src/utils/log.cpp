@@ -1,7 +1,7 @@
 #include "log.h"
 
 namespace utils {
-Log* Log::inst = nullptr;
+Log* Log::inst = new Log();
 Log::Level Log::log_level = Log::Level::trace;
 std::string Log::prefix = "";
 
@@ -79,10 +79,6 @@ Log::~Log() {
 }
 
 Log* Log::instance() {
-    // FIXME possible race condition!!
-    if (inst == nullptr) {
-        inst = new Log();
-    }
     return inst;
 }
 }
