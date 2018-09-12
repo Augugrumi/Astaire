@@ -13,7 +13,7 @@ namespace handler {
 class HelloWorldHandler : public BindingHandler
 {
 public:
-    HelloWorldHandler();
+    HelloWorldHandler() = default;
     virtual ~HelloWorldHandler() = default;
 
     void onRequest(const PConn::Request&, PConn::ResponseWriter);

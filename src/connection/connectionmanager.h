@@ -10,12 +10,22 @@ namespace connection {
 namespace PConn = Pistache::Http;
 namespace PReq = Pistache::Rest;
 
+enum class RequestType {
+    Get,
+    Post,
+    Put,
+    Delete
+};
+
 class ConnectionManager {
 public:
     ConnectionManager(const Pistache::Address &,
                       const PConn::Endpoint::Options& options);
 
-    ConnectionManager* addRoute(const std::string &, PReq::Route::Handler &);
+    ConnectionManager* addRoute(
+            RequestType,
+            const std::string &,
+            PReq::Route::Handler &);
     void run() const;
     void stop() const;
 

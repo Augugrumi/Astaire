@@ -29,6 +29,7 @@ void AsyncTaskExecutor::submit_task(const std::function<void()> & task) const {
 }
 
 AsyncTaskExecutor* AsyncTaskExecutor::instance() {
+    // FIXME possible race condition!!
     if (inst == nullptr) {
         inst = new AsyncTaskExecutor();
     }

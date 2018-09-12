@@ -22,12 +22,39 @@ std::string Log::format_log(
         const std::string & level,
         const std::string & message) const {
 
-    std::string complete_prefix = prefix != "" ? prefix + " - " : "";
-    return complete_prefix + "[" + level + "] - " + message;
+    // get current time
+   auto now = std::chrono::system_clock::now();
+
+   // get number of milliseconds for the current second
+   // (remainder after division into seconds)
+   auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+               now.time_since_epoch()
+               ) % 1000;
+
+   // convert to std::time_t in order to convert to std::tm (broken time)
+   auto timer = std::chrono::system_clock::to_time_t(now);
+
+   // convert to broken time
+   std::tm bt = *std::localtime(&timer);
+
+   std::ostringstream oss;
+   oss << std::put_time(&bt, "%H:%M:%S"); // HH:MM:SS
+   oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+   std::string time = oss.str();
+
+   std::string timestamp =  std::to_string(bt.tm_mday) + "/" +
+           std::to_string(bt.tm_mon) + "/" +
+           std::to_string(bt.tm_year + 1900) + " - " +
+           time;
+
+   std::string complete_prefix = prefix != "" ? prefix + " - " : "";
+   return complete_prefix +
+           "[" + timestamp + "] - " +
+           "[" + level + "] - " +
+           message;
 }
 
 void Log::log(Level level, const std::string & to_print) const {
-    // TODO: add time!
     if (level >= log_level) {
         if (level == Log::Level::fatal) {
             std::cerr << format_log(level_lookup(level), to_print) << std::endl;
@@ -52,6 +79,7 @@ Log::~Log() {
 }
 
 Log* Log::instance() {
+    // FIXME possible race condition!!
     if (inst == nullptr) {
         inst = new Log();
     }

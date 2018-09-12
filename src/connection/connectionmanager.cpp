@@ -15,11 +15,18 @@ ConnectionManager::ConnectionManager(
                 );
 }
 
-ConnectionManager* ConnectionManager::addRoute(const std::string & route_path,
-                                               PReq::Route::Handler & route) {
+ConnectionManager* ConnectionManager::addRoute(
+        RequestType type_of_request,
+        const std::string & route_path,
+        PReq::Route::Handler & route) {
 
     // !! Passing unique_ptr router here
-    PReq::Routes::Get(*router, route_path, route);
+    switch (type_of_request) {
+        case RequestType::Get : PReq::Routes::Get(*router, route_path, route); break;
+        case RequestType::Post : PReq::Routes::Post(*router, route_path, route); break;
+        case RequestType::Put : PReq::Routes::Put(*router, route_path, route); break;
+        case RequestType::Delete : PReq::Routes::Delete(*router, route_path, route); break;
+    }
     return this;
 }
 

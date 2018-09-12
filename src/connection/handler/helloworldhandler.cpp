@@ -2,20 +2,19 @@
 
 namespace connection {
 namespace handler {
-HelloWorldHandler::HelloWorldHandler()
-{
-
-}
 
 void HelloWorldHandler::onRequest(const PConn::Request& request,
                                   PConn::ResponseWriter response) {
     LOG(ldebug, "Hello World called");
 
-    auto async_task = [] () {
-        LOG(ltrace, "In the async task");
+    auto async_task = [] (const std::string & payload) {
+        LOG(ltrace, "Hello world lambda function. Printing the packet payload");
+        LOG(ltrace, "------------BEGIN PACKET-------------");
+        LOG(linfo, payload);
+        LOG(ltrace, "-------------END PACKET--------------");
     };
 
-    ASYNC_TASK(async_task);
+    ASYNC_TASK(std::bind<void>(async_task, request.body()));
 
     LOG(ldebug, "Another print");
 

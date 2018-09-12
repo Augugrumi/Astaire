@@ -18,7 +18,7 @@ int main()
 
     LOG(ldebug, "Handler created");
     connection::ConnectionManager conn(addr, opts);
-    conn.addRoute("/hello", bind);
+    conn.addRoute(connection::RequestType::Post, "/hello", bind);
     LOG(ldebug, "Handler added");
 
     conn.run();
