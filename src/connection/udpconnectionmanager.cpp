@@ -15,12 +15,12 @@ void UDPConnectionManager::run() {
     LOG(ltrace, "Running the server");
 
         LOG(ltrace, "Ready for receiving another message");
-        socket->async_receive_from(
+        /*socket->async_receive_from(
                     boost::asio::buffer(buffer),
                     endpoint,
                     boost::bind(&UDPConnectionManager::handle_message, this,
                                 boost::asio::placeholders::error,
-                                boost::asio::placeholders::bytes_transferred));
+                                boost::asio::placeholders::bytes_transferred));*/
         LOG(ltrace, "Async set");
         service->run();
 
@@ -31,9 +31,27 @@ void UDPConnectionManager::stop() {
     socket->shutdown(boost::asio::socket_base::shutdown_type::shutdown_both);
 }
 
+void UDPConnectionManager::send(const char* message, std::function<void(const char*, int, std::size_t)> & callback) {
+
+    auto converted_errno = [&callback] (const char* message, boost::system::error_code err, std::size_t buff_size) {
+        callback(message, err.value(), buff_size);
+    };
+
+    socket->async_send_to(boost::asio::buffer(message, strlen(message)),
+                          endpoint,
+                          boost::bind<void>(converted_errno,
+                                      message,
+                                      boost::asio::placeholders::error,
+                                      boost::asio::placeholders::bytes_transferred));
+}
+
+void UDPConnectionManager::send(const char* message) {
+    socket->send_to(boost::asio::buffer(message, strlen(message)), endpoint);
+}
+
 void UDPConnectionManager::handle_message(
         const boost::system::error_code& error,
-        std::size_t buffer_size) const {
+        std::size_t buffer_size) {
     if (!error || error == boost::asio::error::message_size) {
         LOG(ldebug, "Message arrived");
         /*for (unsigned long i = 0; i < buffer_size && i < buffer.size(); i++) {
@@ -46,14 +64,20 @@ void UDPConnectionManager::handle_message(
                     std::shared_ptr<std::string>(
                         new std::string("Hello world")));
 
-        socket->async_send_to(boost::asio::buffer(*message), endpoint,
+        std::function<void(const char*, int, std::size_t)> lambda = [] (const char* message, int err, std::size_t buffer_size) {
+            LOG(ltrace, "Inside the lambda - send");
+        };
+
+        send(message->c_str(), lambda);
+
+        /*socket->async_send_to(boost::asio::buffer(*message), endpoint,
                   boost::bind(&UDPConnectionManager::reply_to_message,
                               this,
                               message,
                               boost::asio::placeholders::error,
-                              boost::asio::placeholders::bytes_transferred));
+                              boost::asio::placeholders::bytes_transferred));*/
     }
-    const_cast<UDPConnectionManager*>(this)->run();
+    run();
 }
 
 void UDPConnectionManager::reply_to_message(
