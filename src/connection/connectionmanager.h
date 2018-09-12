@@ -6,24 +6,13 @@
 #include <pistache/router.h>
 
 namespace connection {
-
-namespace PConn = Pistache::Http;
-namespace PReq = Pistache::Rest;
-
-enum class RequestType {
-    Get,
-    Post,
-    Put,
-    Delete
-};
-
 class ConnectionManager {
 public:
     ConnectionManager() = default;
     virtual ~ConnectionManager() = default;
 
-    virtual void run() const = 0;
-    virtual void stop() const = 0;
+    virtual void run() = 0;
+    virtual void stop() = 0;
 
 };
 }

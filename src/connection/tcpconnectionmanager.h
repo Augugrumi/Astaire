@@ -19,8 +19,8 @@ public:
                          const PReq::Router &,
                          const PConn::Endpoint::Options&);
 
-    void run() const;
-    void stop() const;
+    void run();
+    void stop();
 
 private:
     const std::unique_ptr<PConn::Endpoint> server;

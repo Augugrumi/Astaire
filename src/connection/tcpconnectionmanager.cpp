@@ -5,18 +5,17 @@ TCPConnectionManager::TCPConnectionManager(
         const Pistache::Address& address,
         const PReq::Router & new_router,
         const PConn::Endpoint::Options& server_options)
-    : ConnectionManager (),
-      server (std::unique_ptr<PConn::Endpoint>(new PConn::Endpoint(address))),
+    : server (std::unique_ptr<PConn::Endpoint>(new PConn::Endpoint(address))),
       router (std::unique_ptr<const PReq::Router>(&new_router)) {
     server->init(server_options);
     server->setHandler(router->handler());
 }
 
-void TCPConnectionManager::run() const {
+void TCPConnectionManager::run() {
     server->serve();
 }
 
-void TCPConnectionManager::stop() const {
+void TCPConnectionManager::stop() {
     server->shutdown();
 }
 
