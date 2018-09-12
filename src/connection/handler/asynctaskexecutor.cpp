@@ -15,7 +15,9 @@ AsyncTaskExecutor::AsyncTaskExecutor() noexcept {
 }
 
 AsyncTaskExecutor::~AsyncTaskExecutor() {
+#if HAS_BOOST_THREAD
     thread_pool->stop();
+#endif
     delete inst;
 }
 
@@ -29,10 +31,6 @@ void AsyncTaskExecutor::submit_task(const std::function<void()> & task) const {
 }
 
 AsyncTaskExecutor* AsyncTaskExecutor::instance() {
-    // FIXME possible race condition!!
-    /*if (inst == nullptr) {
-        inst = new AsyncTaskExecutor();
-    }*/
     return inst;
 }
 }
