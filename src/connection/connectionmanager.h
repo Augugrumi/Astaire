@@ -4,26 +4,19 @@
 #include <memory>
 #include <pistache/endpoint.h>
 #include <pistache/router.h>
+#include <functional>
 
 namespace connection {
-
-namespace PConn = Pistache::Http;
-namespace PReq = Pistache::Rest;
-
-enum class RequestType {
-    Get,
-    Post,
-    Put,
-    Delete
-};
-
 class ConnectionManager {
 public:
     ConnectionManager() = default;
     virtual ~ConnectionManager() = default;
 
-    virtual void run() const = 0;
-    virtual void stop() const = 0;
+    virtual void run() = 0;
+    virtual void stop() = 0;
+
+    virtual void send(const char*, std::function<void(const char*, int, std::size_t)>&) = 0;
+    virtual void send(const char*) = 0;
 
 };
 }

@@ -31,7 +31,7 @@ private:
 };
 
 #define ASYNC_TASK(task) \
-    AsyncTaskExecutor::instance()->submit_task(task);
+    handler::AsyncTaskExecutor::instance()->submit_task(task);
 }
 }
 #endif // ASYNCTASKEXECUTOR_H
