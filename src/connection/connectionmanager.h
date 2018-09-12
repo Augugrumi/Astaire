@@ -19,19 +19,12 @@ enum class RequestType {
 
 class ConnectionManager {
 public:
-    ConnectionManager(const Pistache::Address &,
-                      const PConn::Endpoint::Options& options);
+    ConnectionManager() = default;
+    virtual ~ConnectionManager() = default;
 
-    ConnectionManager* addRoute(
-            RequestType,
-            const std::string &,
-            PReq::Route::Handler &);
-    void run() const;
-    void stop() const;
+    virtual void run() const = 0;
+    virtual void stop() const = 0;
 
-private:
-    std::unique_ptr<PConn::Endpoint> server;
-    std::unique_ptr<PReq::Router> router;
 };
 }
 
