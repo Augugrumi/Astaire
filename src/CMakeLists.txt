@@ -4,7 +4,8 @@ add_executable(${PROJECT_NAME}
     "connection/connectionmanager.cpp"
     "connection/handler/binding_handler.cpp"
     "connection/handler/helloworldhandler.cpp"
-    "connection/handler/asynctaskexecutor.cpp")
+    "connection/handler/asynctaskexecutor.cpp"
+    "connection/tcpconnectionmanager.cpp")
 
 # Set library version
 set_target_properties(

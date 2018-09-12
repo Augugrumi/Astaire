@@ -1,7 +1,7 @@
 #include <pistache/endpoint.h>
 #include <pistache/router.h>
 
-#include "connection/connectionmanager.h"
+#include "connection/tcpconnectionmanager.h"
 #include "connection/handler/helloworldhandler.h"
 #include "utils/log.h"
 
@@ -17,8 +17,11 @@ int main()
     auto bind = Pistache::Rest::Routes::bind(&connection::handler::HelloWorldHandler::onRequest, test);
 
     LOG(ldebug, "Handler created");
-    connection::ConnectionManager conn(addr, opts);
-    conn.addRoute(connection::RequestType::Post, "/hello", bind);
+
+    Pistache::Rest::Router router = Pistache::Rest::Router();
+    Pistache::Rest::Routes::Post(router, "/hello", bind);
+
+    connection::TCPConnectionManager conn(addr, router, opts);
     LOG(ldebug, "Handler added");
 
     conn.run();
