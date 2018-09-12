@@ -29,7 +29,7 @@ int main()
     conn.run();*/
 
     boost::asio::io_service service;
-    connection::UDPConnectionManager conn(service, 13);
+    connection::UDPConnectionManager conn(service, 8767);
 
     conn.run();
 
