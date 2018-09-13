@@ -20,7 +20,7 @@ void TCPConnectionManager::stop() {
 }
 
 void TCPConnectionManager::send(const char* message,
-                                std::function<void(const char*, int, std::size_t)> & callback) {
+                                std::function<void(const char*, int, std::size_t)> &callback) {
 
 }
 

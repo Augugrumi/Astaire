@@ -15,12 +15,12 @@ void UDPConnectionManager::run() {
     LOG(ltrace, "Running the server");
 
         LOG(ltrace, "Ready for receiving another message");
-        /*socket->async_receive_from(
+        socket->async_receive_from(
                     boost::asio::buffer(buffer),
                     endpoint,
                     boost::bind(&UDPConnectionManager::handle_message, this,
                                 boost::asio::placeholders::error,
-                                boost::asio::placeholders::bytes_transferred));*/
+                                boost::asio::placeholders::bytes_transferred));
         LOG(ltrace, "Async set");
         service->run();
 

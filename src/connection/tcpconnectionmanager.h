@@ -22,7 +22,7 @@ public:
     void run();
     void stop();
 
-    void send(const char*, std::function<void(const char*, int, std::size_t)> &);
+    void send(const char*, std::function<void(const char*, int, std::size_t)>&);
     void send(const char*);
 
 private:
