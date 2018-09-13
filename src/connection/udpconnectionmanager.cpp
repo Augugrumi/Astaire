@@ -55,18 +55,30 @@ void UDPConnectionManager::handle_message(
     if (!error || error == boost::asio::error::message_size) {
         LOG(ldebug, "Message arrived");
 
-        LOG(ltrace, "Buffer size " + std::to_string(buffer.size()));
-        LOG(ltrace, "Received size " + std::to_string(buffer_size));
+        auto printer = [] (boost::array<char, 65536> buffer, std::size_t buffer_size) {
+            LOG(ltrace, "Buffer size " + std::to_string(buffer.size()));
+            LOG(ltrace, "Received size " + std::to_string(buffer_size));
+
+            std::string tmp;
+            LOG(ltrace, "-------------PACKET CONTENT------------");
+            for (std::size_t i = 0; i < buffer_size && i < buffer.size(); i++) {
+                tmp.push_back(buffer.at(i));
+            }
+            LOG(ltrace, tmp);
+            LOG(ltrace, "---------------------------------------");
+        };
+        ASYNC_TASK(std::bind<void>(printer, buffer, buffer_size));
+
 
         std::shared_ptr<std::string> message (
                     std::shared_ptr<std::string>(
                         new std::string("Hello world")));
 
-        std::function<void(const char*, int, std::size_t)> lambda = [] (const char* message, int err, std::size_t buffer_size) {
-            LOG(ltrace, "Inside the lambda - send");
+        std::function<void(const char*, int, std::size_t)> callback_sender = [] (const char* message, int err, std::size_t buffer_size) {
+            LOG(ldebug, "Inside the callback lambda - send");
         };
 
-        send(message->c_str(), lambda);
+        send(message->c_str(), callback_sender);
     }
     run();
 }
