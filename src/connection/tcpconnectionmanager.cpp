@@ -19,5 +19,13 @@ void TCPConnectionManager::stop() {
     server->shutdown();
 }
 
+void TCPConnectionManager::send(const char* message,
+                                std::function<void(const char*, int, std::size_t)> &callback) {
+
+}
+
+void TCPConnectionManager::send(const char* message) {
+
+}
 }
 

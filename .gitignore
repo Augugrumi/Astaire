@@ -73,3 +73,7 @@ Thumbs.db
 
 CMakeLists.txt.user
 build/
+
+# clion
+.idea/*
+cmake-build-debug/*
