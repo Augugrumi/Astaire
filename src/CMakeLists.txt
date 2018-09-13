@@ -6,7 +6,7 @@ add_executable(${PROJECT_NAME}
     "connection/handler/helloworldhandler.cpp"
     "connection/handler/asynctaskexecutor.cpp"
     "connection/tcpconnectionmanager.cpp"
-    "connection/udpconnectionmanager.cpp")
+    "connection/udpconnectionmanager.cpp" utils/ThreadPool.cpp utils/ThreadPool.h)
 
 # Set library version
 set_target_properties(
@@ -42,6 +42,10 @@ add_definitions(-DSO)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LOG_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE "-lboost_system")
+
+
+find_package(Threads REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE -pthread)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/src)
 
