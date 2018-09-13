@@ -5,7 +5,7 @@
 #ifndef ASTAIRE_THREADPOOL_H
 #define ASTAIRE_THREADPOOL_H
 
-#if HAS_BOOST_THREAD
+#if !(HAS_BOOST_THREAD)
 
 #include <vector>
 #include <queue>
