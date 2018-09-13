@@ -31,18 +31,23 @@ void UDPConnectionManager::stop() {
     socket->shutdown(boost::asio::socket_base::shutdown_type::shutdown_both);
 }
 
-void UDPConnectionManager::send(const char* message, std::function<void(const char*, int, std::size_t)> & callback) {
+void UDPConnectionManager::send(
+        const char* message,
+        std::function<void(const char*, int, std::size_t)> & callback) {
 
-    auto converted_errno = [&callback] (const char* message, boost::system::error_code err, std::size_t buff_size) {
+    auto converted_errno = [&callback] (
+            const char* message,
+            boost::system::error_code err, std::size_t buff_size) {
         callback(message, err.value(), buff_size);
     };
 
     socket->async_send_to(boost::asio::buffer(message, strlen(message)),
                           endpoint,
-                          boost::bind<void>(converted_errno,
-                                      message,
-                                      boost::asio::placeholders::error,
-                                      boost::asio::placeholders::bytes_transferred));
+                          boost::bind<void>(
+                              converted_errno,
+                              message,
+                              boost::asio::placeholders::error,
+                              boost::asio::placeholders::bytes_transferred));
 }
 
 void UDPConnectionManager::send(const char* message) {
@@ -55,7 +60,8 @@ void UDPConnectionManager::handle_message(
     if (!error || error == boost::asio::error::message_size) {
         LOG(ldebug, "Message arrived");
 
-        auto printer = [] (boost::array<char, 65536> buffer, std::size_t buffer_size) {
+        auto printer = [] (
+                boost::array<char, 65536> buffer, std::size_t buffer_size) {
             LOG(ltrace, "Buffer size " + std::to_string(buffer.size()));
             LOG(ltrace, "Received size " + std::to_string(buffer_size));
 
@@ -74,19 +80,13 @@ void UDPConnectionManager::handle_message(
                     std::shared_ptr<std::string>(
                         new std::string("Hello world")));
 
-        std::function<void(const char*, int, std::size_t)> callback_sender = [] (const char* message, int err, std::size_t buffer_size) {
+        std::function<void(const char*, int, std::size_t)> cb_sender = [] (
+                const char* message, int err, std::size_t buffer_size) {
             LOG(ldebug, "Inside the callback lambda - send");
         };
 
-        send(message->c_str(), callback_sender);
+        send(message->c_str(), cb_sender);
     }
     run();
-}
-
-void UDPConnectionManager::reply_to_message(
-        std::shared_ptr<std::string> message,
-        const boost::system::error_code& error_code,
-        std::size_t buffer_size) const {
-    LOG(ltrace, "In reply_to_message");
 }
 }

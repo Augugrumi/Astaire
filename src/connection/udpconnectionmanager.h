@@ -34,9 +34,6 @@ private:
     boost::array<char, 65536> buffer;
 
     void handle_message(const boost::system::error_code&, std::size_t);
-    void reply_to_message(std::shared_ptr<std::string>,
-                          const boost::system::error_code&,
-                          std::size_t) const;
 };
 }
 
