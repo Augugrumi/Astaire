@@ -11,6 +11,9 @@ AsyncTaskExecutor::AsyncTaskExecutor() noexcept {
     thread_pool = std::unique_ptr<boost::asio::thread_pool>(
             new boost::asio::thread_pool(std::thread::hardware_concurrency()
     ));
+#else
+    LOG(ldebug, "Using fallback Thread pool")
+    thread_pool = std::unique_ptr<utils::ThreadPool>(new utils::ThreadPool(std::thread::hardware_concurrency()));
 #endif
 }
 
@@ -25,8 +28,7 @@ void AsyncTaskExecutor::submit_task(const std::function<void()> & task) const {
 #if HAS_BOOST_THREAD
     boost::asio::post(*thread_pool, task);
 #else
-    std::thread todo_task(task);
-    todo_task.detach();
+    thread_pool->enqueue(task);
 #endif
 }
 
