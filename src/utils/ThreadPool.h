@@ -5,6 +5,8 @@
 #ifndef ASTAIRE_THREADPOOL_H
 #define ASTAIRE_THREADPOOL_H
 
+#if HAS_BOOST_THREAD
+
 #include <vector>
 #include <queue>
 #include <memory>
@@ -36,5 +38,7 @@ namespace utils {
     };
 
 }// namespace utils
+
+#endif
 
 #endif //ASTAIRE_THREADPOOL_H

@@ -2,6 +2,8 @@
 // Created by zanna on 13/09/18.
 //
 
+#if HAS_BOOST_THREAD
+
 #include "ThreadPool.h"
 
 namespace utils {
@@ -68,3 +70,4 @@ ThreadPool::~ThreadPool()
 }
 
 }
+#endif
