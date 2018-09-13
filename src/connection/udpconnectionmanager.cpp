@@ -54,9 +54,7 @@ void UDPConnectionManager::handle_message(
         std::size_t buffer_size) {
     if (!error || error == boost::asio::error::message_size) {
         LOG(ldebug, "Message arrived");
-        /*for (unsigned long i = 0; i < buffer_size && i < buffer.size(); i++) {
-            LOG(ltrace, std::to_string(buffer.at(i)));
-        }*/
+
         LOG(ltrace, "Buffer size " + std::to_string(buffer.size()));
         LOG(ltrace, "Received size " + std::to_string(buffer_size));
 
@@ -69,13 +67,6 @@ void UDPConnectionManager::handle_message(
         };
 
         send(message->c_str(), lambda);
-
-        /*socket->async_send_to(boost::asio::buffer(*message), endpoint,
-                  boost::bind(&UDPConnectionManager::reply_to_message,
-                              this,
-                              message,
-                              boost::asio::placeholders::error,
-                              boost::asio::placeholders::bytes_transferred));*/
     }
     run();
 }
