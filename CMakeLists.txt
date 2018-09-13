@@ -6,7 +6,7 @@ INCLUDE(CheckLibraryExists)
 INCLUDE(FindPkgConfig)
 
 # CXX11
-set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 set(VERSION "0.1")
 
 # Where astaireopenvpn will be installed
