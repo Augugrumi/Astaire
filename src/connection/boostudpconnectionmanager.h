@@ -1,9 +1,22 @@
 #ifndef BOOSTUDPCONNECTIONMANAGER_H
 #define BOOSTUDPCONNECTIONMANAGER_H
 
+#include <ctime>
+#include <iostream>
+#include <string>
+#include <boost/array.hpp>
+#include <boost/bind.hpp>
+#include <boost/asio.hpp>
+#include <boost/function.hpp>
+
+#include "handler/asynctaskexecutor.h"
+#include "log.h"
 #include "udpconnectionmanager.h"
 
 namespace connection {
+
+namespace bip = boost::asio::ip;
+
 class BoostUDPConnectionManager : public UDPConnectionManager
 {
 public:

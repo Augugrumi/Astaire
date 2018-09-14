@@ -4,6 +4,7 @@
 
 #include "connection/tcpconnectionmanager.h"
 #include "connection/boostudpconnectionmanager.h"
+#include "connection/rawsocketudpconnectionmanager.h"
 #include "connection/handler/helloworldhandler.h"
 #include "utils/log.h"
 
@@ -28,8 +29,10 @@ int main()
 
     conn.run();*/
 
-    boost::asio::io_service service;
-    connection::BoostUDPConnectionManager conn(service, 8767);
+    /*boost::asio::io_service service;
+    connection::BoostUDPConnectionManager conn(service, 8767);*/
+
+    connection::RawSocketUDPConnectionManager conn(8767);
 
     conn.run();
 
