@@ -78,7 +78,16 @@ void RawSocketUDPConnectionManager::stop() {
 
 }
 
-void RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr* dest) {
-    sendto(fd, message, strlen(message), 0, dest, sizeof(dest));
+void RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr* dest, std::function<void(ssize_t)>& cb) {
+    auto async_send = [this] (int fd, const char* message, sockaddr* dest, std::function <void(ssize_t)>& cb) {
+        ssize_t res = send(fd, message, dest);
+        cb(res);
+    };
+
+    ASYNC_TASK(std::bind<void>(async_send, fd, message, dest, cb));
+}
+
+ssize_t RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr* dest) {
+    return sendto(fd, message, strlen(message), 0, dest, sizeof(dest));
 }
 }

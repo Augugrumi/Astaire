@@ -28,8 +28,8 @@ public:
     void stop();
 
     // TODO use promise for the async send?
-    //void send(int, const char*, sockaddr* dest, std::function<void(const char*, int, std::size_t)>&);
-    void send(int, const char*, sockaddr* dest);
+    void send(int, const char*, sockaddr* dest, std::function<void(ssize_t)>&);
+    ssize_t send(int, const char*, sockaddr* dest);
 
 private:
     struct pollfd pollfd;
