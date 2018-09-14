@@ -29,7 +29,7 @@ void RawSocketUDPConnectionManager::run() {
         exit(1);
     }
 
-    if (bind(pollfd.fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+    if (bind(pollfd.fd, reinterpret_cast<struct sockaddr *>(&addr), sizeof(addr)) < 0) {
         LOG(lfatal, "Impossible to bind to port: " + std::to_string(get_port()));
         exit(1);
     }
@@ -56,7 +56,7 @@ void RawSocketUDPConnectionManager::run() {
 
                 sockaddr_in client;
                 socklen_t clientlen = sizeof(client);
-                ssize_t i = recvfrom(pollfd.fd, buf, BUFFER_SIZE, 0, (struct sockaddr *) &client, &clientlen);
+                ssize_t i = recvfrom(pollfd.fd, buf, BUFFER_SIZE, 0, reinterpret_cast<struct sockaddr *>(&client), &clientlen);
 
                 if (i > 0) {
                     LOG(ltrace, "Data received");
@@ -65,9 +65,10 @@ void RawSocketUDPConnectionManager::run() {
                         ct++;
                     };
 
-                    const char * reply = "ACK";
-                    sendto(pollfd.fd, reply, strlen(reply), 0, (struct sockaddr *) &client, clientlen);
+                    /*std::function<void(ssize_t)> empty_lambda = [](ssize_t){};*/
+                    send(pollfd.fd, "ACK", &client);
                     ASYNC_TASK(std::bind<void>(packet_printer, buf));
+
                 }
             }
         }
@@ -78,7 +79,32 @@ void RawSocketUDPConnectionManager::stop() {
 
 }
 
-void RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr* dest) {
-    sendto(fd, message, strlen(message), 0, dest, sizeof(dest));
+void RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr_in* dest, std::function<void(ssize_t)>& cb) {
+    auto async_send = [this] (int fd, const char* message, sockaddr_in* dest, std::function <void(ssize_t)>& cb) {
+        ssize_t res = send(fd, message, dest);
+        cb(res);
+    };
+
+    ASYNC_TASK(std::bind<void>(async_send, fd, message, dest, cb));
+}
+
+ssize_t RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr_in* dest) {
+    return sendto(fd, message, strlen(message), 0, reinterpret_cast<struct sockaddr*>(dest), sizeof(dest));
+}
+
+ssize_t RawSocketUDPConnectionManager::sound_send(int fd, const char* message, sockaddr_in* dest, short retr) {
+
+    ssize_t result;
+
+    while ((result = send(fd, message, dest)) < 0 && retr >= 0) {
+        retr--;
+    }
+
+    if (retr < 0) {
+        LOG(lwarn, "Failure when sending packet:\n" + std::to_string(*message));
+        return -1;
+    }
+
+    return result;
 }
 }

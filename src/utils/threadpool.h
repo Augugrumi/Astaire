@@ -19,20 +19,7 @@
 
 namespace utils {
 
-#ifndef THREAD_POOL_H
-#define THREAD_POOL_H
-
-#include <vector>
-#include <queue>
-#include <memory>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <future>
-#include <functional>
-#include <stdexcept>
-
-    class ThreadPool {
+class ThreadPool {
     public:
         ThreadPool(size_t);
         template<class F, class... Args>
@@ -115,10 +102,6 @@ namespace utils {
         for(std::thread &worker: workers)
             worker.join();
     }
-
-#endif
-
-
 }// namespace utils
 
 #endif
