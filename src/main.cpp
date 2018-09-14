@@ -3,7 +3,7 @@
 #include <boost/asio.hpp>
 
 #include "connection/tcpconnectionmanager.h"
-#include "connection/udpconnectionmanager.h"
+#include "connection/boostudpconnectionmanager.h"
 #include "connection/handler/helloworldhandler.h"
 #include "utils/log.h"
 
@@ -29,7 +29,7 @@ int main()
     conn.run();*/
 
     boost::asio::io_service service;
-    connection::UDPConnectionManager conn(service, 8767);
+    connection::BoostUDPConnectionManager conn(service, 8767);
 
     conn.run();
 
