@@ -65,9 +65,10 @@ void RawSocketUDPConnectionManager::run() {
                         ct++;
                     };
 
-                    const char * reply = "ACK";
-                    sendto(pollfd.fd, reply, strlen(reply), 0, reinterpret_cast<struct sockaddr *>(&client), clientlen);
+                    /*std::function<void(ssize_t)> empty_lambda = [](ssize_t){};*/
+                    send(pollfd.fd, "ACK", &client);
                     ASYNC_TASK(std::bind<void>(packet_printer, buf));
+
                 }
             }
         }
@@ -78,8 +79,8 @@ void RawSocketUDPConnectionManager::stop() {
 
 }
 
-void RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr* dest, std::function<void(ssize_t)>& cb) {
-    auto async_send = [this] (int fd, const char* message, sockaddr* dest, std::function <void(ssize_t)>& cb) {
+void RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr_in* dest, std::function<void(ssize_t)>& cb) {
+    auto async_send = [this] (int fd, const char* message, sockaddr_in* dest, std::function <void(ssize_t)>& cb) {
         ssize_t res = send(fd, message, dest);
         cb(res);
     };
@@ -87,11 +88,11 @@ void RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr* 
     ASYNC_TASK(std::bind<void>(async_send, fd, message, dest, cb));
 }
 
-ssize_t RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr* dest) {
-    return sendto(fd, message, strlen(message), 0, dest, sizeof(dest));
+ssize_t RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr_in* dest) {
+    return sendto(fd, message, strlen(message), 0, reinterpret_cast<struct sockaddr*>(dest), sizeof(dest));
 }
 
-ssize_t RawSocketUDPConnectionManager::sound_send(int fd, const char* message, sockaddr* dest, short retr) {
+ssize_t RawSocketUDPConnectionManager::sound_send(int fd, const char* message, sockaddr_in* dest, short retr) {
 
     ssize_t result;
 
