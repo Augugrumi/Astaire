@@ -8,7 +8,8 @@ add_executable(${PROJECT_NAME}
     "connection/handler/asynctaskexecutor.cpp"
     "connection/tcpconnectionmanager.cpp"
     "connection/udpconnectionmanager.cpp"
-    "connection/boostudpconnectionmanager.cpp")
+    "connection/boostudpconnectionmanager.cpp"
+    "connection/rawsocketudpconnectionmanager.cpp")
 
 # Set library version
 set_target_properties(

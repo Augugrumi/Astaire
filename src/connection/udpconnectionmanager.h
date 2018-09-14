@@ -19,7 +19,10 @@ namespace connection {
 
 class UDPConnectionManager : public ConnectionManager {
 public:
-    UDPConnectionManager() = default;
+    UDPConnectionManager(unsigned short int);
+
+private:
+    unsigned short int port;
 
 };
 }

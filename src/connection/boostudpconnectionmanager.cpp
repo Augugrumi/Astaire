@@ -4,7 +4,8 @@ namespace connection {
 BoostUDPConnectionManager::BoostUDPConnectionManager(
         boost::asio::io_service & new_service,
         unsigned short int port)
-    : socket(std::unique_ptr<bip::udp::socket>(
+    : UDPConnectionManager(port),
+      socket(std::unique_ptr<bip::udp::socket>(
                  new bip::udp::socket(
                      new_service,
                      bip::udp::endpoint(bip::udp::v4(), port)))),
@@ -14,15 +15,15 @@ BoostUDPConnectionManager::BoostUDPConnectionManager(
 void BoostUDPConnectionManager::run() {
     LOG(ltrace, "Running the server");
 
-        LOG(ltrace, "Ready for receiving another message");
-        socket->async_receive_from(
-                    boost::asio::buffer(buffer),
-                    endpoint,
-                    boost::bind(&BoostUDPConnectionManager::handle_message, this,
-                                boost::asio::placeholders::error,
-                                boost::asio::placeholders::bytes_transferred));
-        LOG(ltrace, "Async set");
-        service->run();
+    LOG(ltrace, "Ready for receiving another message");
+    socket->async_receive_from(
+                boost::asio::buffer(buffer),
+                endpoint,
+                boost::bind(&BoostUDPConnectionManager::handle_message, this,
+                            boost::asio::placeholders::error,
+                            boost::asio::placeholders::bytes_transferred));
+    LOG(ltrace, "Async set");
+    service->run();
 }
 
 void BoostUDPConnectionManager::stop() {
