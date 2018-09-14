@@ -31,6 +31,8 @@ public:
     void send(int, const char*, sockaddr* dest, std::function<void(ssize_t)>&);
     ssize_t send(int, const char*, sockaddr* dest);
 
+    ssize_t sound_send(int, const char*, sockaddr* dest, short = 0);
+
 private:
     struct pollfd pollfd;
     struct sockaddr_in addr;
