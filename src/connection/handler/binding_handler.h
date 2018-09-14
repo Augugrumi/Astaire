@@ -5,7 +5,7 @@
 #include <pistache/endpoint.h>
 #include <pistache/router.h>
 
-#include "../../utils/log.h"
+#include "log.h"
 
 namespace connection {
 namespace handler {

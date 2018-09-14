@@ -6,13 +6,13 @@
 #include <thread>
 
 #include "config.h"
-#include "../../utils/log.h"
+#include "log.h"
 
 #if HAS_BOOST_THREAD
 #include <boost/asio/thread_pool.hpp>
 #include <boost/asio.hpp>
 #else
-#include "../../utils/ThreadPool.h"
+#include "threadpool.h"
 #endif
 
 
