@@ -33,6 +33,7 @@ void BoostUDPConnectionManager::stop() {
 
 void BoostUDPConnectionManager::send(
         const char* message,
+        const bip::udp::endpoint& edpt,
         std::function<void(const char*, int, std::size_t)> & callback) {
 
     auto converted_errno = [&callback] (
@@ -42,16 +43,12 @@ void BoostUDPConnectionManager::send(
     };
 
     socket->async_send_to(boost::asio::buffer(message, strlen(message)),
-                          endpoint,
+                          edpt,
                           boost::bind<void>(
                               converted_errno,
                               message,
                               boost::asio::placeholders::error,
                               boost::asio::placeholders::bytes_transferred));
-}
-
-void BoostUDPConnectionManager::send(const char* message) {
-    socket->send_to(boost::asio::buffer(message, strlen(message)), endpoint);
 }
 
 void BoostUDPConnectionManager::handle_message(
@@ -85,7 +82,7 @@ void BoostUDPConnectionManager::handle_message(
             LOG(ldebug, "Inside the callback lambda - send");
         };
 
-        send(message->c_str(), cb_sender);
+        send(message->c_str(), endpoint, cb_sender);
     }
     run();
 }

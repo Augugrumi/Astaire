@@ -4,6 +4,7 @@
 #include <memory>
 #include <pistache/endpoint.h>
 #include <pistache/router.h>
+#include <functional>
 
 #include "connectionmanager.h"
 

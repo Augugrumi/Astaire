@@ -2,6 +2,7 @@
 #define CONFIG_H_IN
 
 #cmakedefine VERSION "@VERSION@"
+#cmakedefine BUFFER_SIZE @BUFFER_SIZE@
 #cmakedefine01 HAS_BOOST_THREAD
 
 #endif // CONFIG_H_IN

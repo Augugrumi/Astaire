@@ -9,8 +9,13 @@
 #include "log.h"
 #include "asynctaskexecutor.h"
 
-#define BUFF_SIZE 1024
-#define TIMEOUT_WAIT -1
+// FIXME for test purpose only
+#include <chrono>
+#include <atomic>
+#include <iostream>
+// END FIXME
+
+#define TIMEOUT_WAIT -1 // No timeout
 
 namespace connection {
 class RawSocketUDPConnectionManager : public UDPConnectionManager
@@ -22,8 +27,9 @@ public:
     void run();
     void stop();
 
-    void send(const char*, std::function<void(const char*, int, std::size_t)>&);
-    void send(const char*);
+    // TODO use promise for the async send?
+    //void send(int, const char*, sockaddr* dest, std::function<void(const char*, int, std::size_t)>&);
+    void send(int, const char*, sockaddr* dest);
 
 private:
     struct pollfd pollfd;

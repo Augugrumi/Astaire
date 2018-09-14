@@ -3,7 +3,7 @@
 namespace connection {
 RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(unsigned short int port)
     : UDPConnectionManager(port) {
-    buf = new char[BUFF_SIZE];
+    buf = new char[BUFFER_SIZE];
 
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -34,6 +34,8 @@ void RawSocketUDPConnectionManager::run() {
         exit(1);
     }
 
+    std::atomic_int_fast64_t ct(0);
+
     // Main loop
     while (true) {
         /*
@@ -47,19 +49,24 @@ void RawSocketUDPConnectionManager::run() {
          * specifies. If timeout contains a negative value, the kernel will wait
          * forever. If nfds is zero, poll() becomes a simple millisecond sleep.
          */
-        LOG(ltrace, "In the main loop");
         int poll_ret = poll(&pollfd, 1, TIMEOUT_WAIT);
         if (poll_ret > 0) {
             if (pollfd.revents & POLLIN) {
                 LOG(ltrace, "Detected POLLIN event");
-                ssize_t i = read(pollfd.fd, buf, BUFF_SIZE);
+
+                sockaddr_in client;
+                socklen_t clientlen = sizeof(client);
+                ssize_t i = recvfrom(pollfd.fd, buf, BUFFER_SIZE, 0, (struct sockaddr *) &client, &clientlen);
+
                 if (i > 0) {
                     LOG(ltrace, "Data received");
-                    auto packet_printer = [] (char* buffer) {
-                        LOG(ltrace, "-----------PACKET-----------");
-                        LOG(ltrace, buffer);
-                        LOG(ltrace, "----------------------------");
+                    auto packet_printer = [&ct] (char* buffer) {
+                        std::cout<<ct<<std::endl;
+                        ct++;
                     };
+
+                    const char * reply = "ACK";
+                    sendto(pollfd.fd, reply, strlen(reply), 0, (struct sockaddr *) &client, clientlen);
                     ASYNC_TASK(std::bind<void>(packet_printer, buf));
                 }
             }
@@ -71,12 +78,7 @@ void RawSocketUDPConnectionManager::stop() {
 
 }
 
-void RawSocketUDPConnectionManager::send(const char* message,
-                                         std::function<void(const char*, int, std::size_t)>& callback) {
-
-}
-
-void RawSocketUDPConnectionManager::send(const char* message) {
-
+void RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr* dest) {
+    sendto(fd, message, strlen(message), 0, dest, sizeof(dest));
 }
 }

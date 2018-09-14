@@ -1,6 +1,7 @@
 #ifndef UDPCONNECTIONMANAGER_H
 #define UDPCONNECTIONMANAGER_H
 
+#include <cstdint>
 #include "connectionmanager.h"
 
 namespace connection {

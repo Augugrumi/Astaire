@@ -27,6 +27,7 @@ pkg_check_modules(LIBPISTACHE REQUIRED libpistache)
 target_include_directories(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_LIBRARIES})
 
+set(BUFFER_SIZE 65536)
 
 if (ENABLE_BOOST_THREAD)
     message("Trying to use Boost Thread (if Boost version >= 1.66...)")
