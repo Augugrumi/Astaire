@@ -9,10 +9,10 @@ namespace handler{
 
 AbsHandler *HandlerCreator::getHandlerByLanguageName(const std::string &language, const std::string &config_file) {
     if (boost::iequals("java", language)) {
-        return new handler::JavaHandler(config_file);
+        return new JavaHandler(config_file);
     }
-    LOG(lfatal, "Program started");
-    exit(1);
+    LOG(ldebug, "Returning dummy handler")
+    return new PrinterHandler();
 }
 
 } // namespace handler

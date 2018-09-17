@@ -11,6 +11,7 @@
 #include "log.h"
 #include "handler/abshandler.h"
 #include "handler/javahandler.h"
+#include "handler/printerhandler.h"
 
 namespace connection {
     namespace handler {
