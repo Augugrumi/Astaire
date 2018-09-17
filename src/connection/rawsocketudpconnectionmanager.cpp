@@ -23,8 +23,6 @@ void RawSocketUDPConnectionManager::run() {
     pollfd.events = POLLIN;
     pollfd.revents = 0;
 
-    LOG(ltrace, "File descriptor value" + std::to_string(pollfd.fd));
-
     if (pollfd.fd < 0) {
         LOG(lfatal, "Impossible to obtain a valid file descriptor");
         exit(1);
@@ -73,12 +71,17 @@ void RawSocketUDPConnectionManager::run() {
                     auto packet_printer = [&ct, this] (char* buffer) {
                         unsigned  char* ubuffer = reinterpret_cast<unsigned char*>(buffer);
                         this->handler->handler_request(ubuffer, sizeof(ubuffer));
+
                         ct++;
+
+                        send(cloned_buffer, "localhost", 8769);
                     };
 
                     ASYNC_TASK(std::bind<void>(packet_printer, buf));
                 }
             }
+        } else {
+            LOG(lfatal, "Error fetching data in poll()");
         }
     }
 }
@@ -91,7 +94,7 @@ void RawSocketUDPConnectionManager::send(
         int fd,
         const char* message,
         sockaddr_in* dest,
-        std::function<void(ssize_t)>& cb) {
+        std::function<void(ssize_t)>& cb) const {
 
     auto async_send = [this] (
             int fd,
@@ -108,7 +111,7 @@ void RawSocketUDPConnectionManager::send(
 ssize_t RawSocketUDPConnectionManager::send(
         int fd,
         const char* message,
-        sockaddr_in* dest) {
+        sockaddr_in* dest) const {
     return sendto(
                 fd,
                 message,
@@ -121,7 +124,7 @@ ssize_t RawSocketUDPConnectionManager::send(
 ssize_t RawSocketUDPConnectionManager::send(
         const char* message,
         const char* address,
-        unsigned short int port) {
+        unsigned short int port) const {
 
     // See https://linux.die.net/man/3/getaddrinfo
     struct addrinfo hints;
@@ -155,12 +158,13 @@ ssize_t RawSocketUDPConnectionManager::send(
                         message,
                         reinterpret_cast<struct sockaddr_in*>(rp->ai_addr));
             if (res > 0) {
-                close(sfd);
                 send_flag = false;
             }
         }
+        close(sfd);
     }
 
+    freeaddrinfo(result);
     return res;
 }
 

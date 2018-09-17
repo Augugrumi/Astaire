@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <cstring>
+#include <netdb.h>
+#include <unistd.h>
 
 #include "udpconnectionmanager.h"
 #include "log.h"
@@ -31,9 +33,9 @@ public:
     void stop();
 
     // TODO use promise for the async send?
-    void send(int, const char*, sockaddr_in*, std::function<void(ssize_t)>&);
-    ssize_t send(int, const char*, sockaddr_in*);
-    ssize_t send(const char*, const char*, unsigned short int);
+    void send(int, const char*, sockaddr_in*, std::function<void(ssize_t)>&) const;
+    ssize_t send(int, const char*, sockaddr_in*) const;
+    ssize_t send(const char*, const char*, unsigned short int) const;
 
     ssize_t sound_send(int, const char*, sockaddr_in* dest, short = 0);
 
