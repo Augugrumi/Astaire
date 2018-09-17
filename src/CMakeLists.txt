@@ -73,10 +73,16 @@ if (JNI_FOUND)
 endif()
 
 execute_process (
-        COMMAND bash -c "cat /etc/os-release | grep ID= | head -n1 | cut -d\"=\" -f2"
+        COMMAND bash -c "cat /etc/os-release | grep ID= | head -n1 | cut -d\"=\" -f2 | tr -d '[:space:]'"
         OUTPUT_VARIABLE distro_name
 )
-message("\n-- Checking for distro in use... ${distro_name}")
+message("-- Checking for distro in use... ${distro_name}")
+if (${distro_name} STREQUAL "ubuntu")
+    set(JSONCPP_INCLUDE_PATH_FIX 1)
+else()
+    set(JSONCPP_INCLUDE_PATH_FIX 0)
+endif()
+message("INCLUDE ${JSONCPP_INCLUDE_PATH_FIX}")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE "-ljsoncpp")
 
