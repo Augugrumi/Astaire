@@ -2,9 +2,8 @@
 // Created by zanna on 17/09/18.
 //
 
-#if HAS_JNI
-
 #include "javahandler.h"
+#if HAS_JNI
 
 namespace connection {
     namespace handler {
