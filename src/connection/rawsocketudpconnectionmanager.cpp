@@ -113,7 +113,7 @@ ssize_t RawSocketUDPConnectionManager::send(
                 strlen(message),
                 0,
                 reinterpret_cast<struct sockaddr*>(dest),
-                sizeof(dest));
+                sizeof(*dest));
 }
 
 ssize_t RawSocketUDPConnectionManager::sound_send(
