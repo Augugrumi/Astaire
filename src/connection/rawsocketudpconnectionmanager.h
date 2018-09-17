@@ -17,6 +17,8 @@
 #include <iostream>
 // END FIXME
 
+#include "handler/javahandler.h"
+
 namespace connection {
 class RawSocketUDPConnectionManager : public UDPConnectionManager
 {
@@ -38,6 +40,7 @@ private:
     struct sockaddr_in addr;
     socklen_t addrlen;
     char* buf;
+    connection::handler::AbsHandler* jhandler;
 };
 }
 
