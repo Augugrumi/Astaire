@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <cstring>
+#include <netdb.h>
+#include <unistd.h>
 
 #include "udpconnectionmanager.h"
 #include "log.h"
