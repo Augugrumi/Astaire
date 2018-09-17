@@ -9,7 +9,12 @@ add_executable(${PROJECT_NAME}
     "connection/tcpconnectionmanager.cpp"
     "connection/udpconnectionmanager.cpp"
     "connection/boostudpconnectionmanager.cpp"
-    "connection/rawsocketudpconnectionmanager.cpp")
+    "connection/rawsocketudpconnectionmanager.cpp"
+    "connection/handler/javahandler.cpp"
+    "connection/handler/abshandler.cpp"
+    "utils/jsonutils.cpp")
+
+
 
 # Set library version
 set_target_properties(
@@ -58,6 +63,21 @@ add_definitions(-DSO)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LOG_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE "-lboost_system")
+
+find_package(JNI)
+
+if (JNI_FOUND)
+    include_directories(${JNI_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${JNI_LIBRARIES})
+endif()
+
+execute_process (
+        COMMAND bash -c "cat /etc/os-release | grep ID= | head -n1 | cut -d\"=\" -f2"
+        OUTPUT_VARIABLE distro_name
+)
+message("\n-- Checking for distro in use... ${distro_name}")
+
+target_link_libraries(${PROJECT_NAME} PRIVATE "-ljsoncpp")
 
 # Create config.h for extra compiler macros
 configure_file(
