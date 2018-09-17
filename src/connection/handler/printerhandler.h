@@ -14,7 +14,7 @@ namespace connection{
         class PrinterHandler : public AbsHandler {
         public:
             PrinterHandler();
-            void handler_request(unsigned char *message, std::size_t size) const override;
+            void handler_request(unsigned char *message, std::size_t size) override;
         };
     } // namespace handler
 } // namespace connection

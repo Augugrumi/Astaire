@@ -1,9 +1,11 @@
 #include "rawsocketudpconnectionmanager.h"
 
+
 namespace connection {
 RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(
         uint32_t to_listen,
-        unsigned short int port) : UDPConnectionManager(port) {
+        unsigned short int port,
+        handler::AbsHandler* abshandler) : UDPConnectionManager(port), handler(abshandler) {
     buf = new char[BUFFER_SIZE];
 
     addr.sin_family = AF_INET;
@@ -30,7 +32,7 @@ void RawSocketUDPConnectionManager::run() {
 
     if (bind(
                 pollfd.fd,
-                reinterpret_cast<struct sockaddr *>(&addr),
+                (struct sockaddr*)&addr,
                 sizeof(addr)) < 0) {
         LOG(lfatal, "Faliure binding to port: " + std::to_string(get_port()));
         exit(1);
@@ -63,18 +65,23 @@ void RawSocketUDPConnectionManager::run() {
                             buf,
                             BUFFER_SIZE,
                             0,
-                            reinterpret_cast<struct sockaddr *>(&client),
+                            (struct sockaddr*)&client,
                             &clientlen);
 
                 if (i > 0) {
                     LOG(ltrace, "Data received");
-                    auto packet_printer = [&ct] (char* buffer) {
-                        std::cout<<ct<<std::endl;
+                    auto packet_printer = [&ct, this] (char* buffer) {
+                        unsigned  char* ubuffer = reinterpret_cast<unsigned char*>(buffer);
+                        this->handler->handler_request(ubuffer, sizeof(ubuffer));
                         ct++;
                     };
 
-                    send(pollfd.fd, "ACK", &client);
                     ASYNC_TASK(std::bind<void>(packet_printer, buf));
+                    int err = send(pollfd.fd, "ACK", &client);
+                    if (err < 0){
+                        LOG(lfatal, std::strerror(errno));
+                        exit(1);
+                    }
 
                 }
             }
@@ -112,8 +119,8 @@ ssize_t RawSocketUDPConnectionManager::send(
                 message,
                 strlen(message),
                 0,
-                reinterpret_cast<struct sockaddr*>(dest),
-                sizeof(dest));
+                (struct sockaddr*)(dest),
+                sizeof(*dest));
 }
 
 ssize_t RawSocketUDPConnectionManager::sound_send(

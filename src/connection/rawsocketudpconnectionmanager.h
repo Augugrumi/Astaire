@@ -15,13 +15,16 @@
 #include <chrono>
 #include <atomic>
 #include <iostream>
+#include "handler/javahandler.h"
 // END FIXME
+
+//#include "handler/abshandler.h"
 
 namespace connection {
 class RawSocketUDPConnectionManager : public UDPConnectionManager
 {
 public:
-    RawSocketUDPConnectionManager(uint32_t, unsigned short int);
+    RawSocketUDPConnectionManager(uint32_t, unsigned short int, handler::AbsHandler*);
     ~RawSocketUDPConnectionManager();
 
     void run();
@@ -38,6 +41,7 @@ private:
     struct sockaddr_in addr;
     socklen_t addrlen;
     char* buf;
+    handler::AbsHandler* handler;
 };
 }
 
