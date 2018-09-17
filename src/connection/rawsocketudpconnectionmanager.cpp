@@ -4,14 +4,13 @@
 namespace connection {
 RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(
         uint32_t to_listen,
-        unsigned short int port) : UDPConnectionManager(port) {
+        unsigned short int port,
+        handler::AbsHandler* abshandler) : UDPConnectionManager(port), handler(abshandler) {
     buf = new char[BUFFER_SIZE];
 
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(to_listen);
     addr.sin_port = htons(get_port());
-
-    jhandler = new connection::handler::JavaHandler("/mnt/3C013B4060E799D6/Desktop/tesi/astaire/conf.json");
 }
 
 RawSocketUDPConnectionManager::~RawSocketUDPConnectionManager() {
@@ -73,7 +72,7 @@ void RawSocketUDPConnectionManager::run() {
                     LOG(ltrace, "Data received");
                     auto packet_printer = [&ct, this] (char* buffer) {
                         unsigned  char* ubuffer = reinterpret_cast<unsigned char*>(buffer);
-                        this->jhandler->handler_request(ubuffer, sizeof(ubuffer));
+                        this->handler->handler_request(ubuffer, sizeof(ubuffer));
                         ct++;
                     };
 
