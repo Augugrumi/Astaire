@@ -21,7 +21,14 @@ set_target_properties(
     ${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_NAME}_VERSION_STRING
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+
+if ((CMAKE_BUILD_TYPE MATCHES Debug)  OR (CMAKE_BUILD_TYPE MATCHES DEBUG))
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+endif()
+
+
+
+
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/utils")
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection")

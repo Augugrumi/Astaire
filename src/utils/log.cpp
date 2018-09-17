@@ -2,7 +2,7 @@
 
 namespace utils {
 Log* Log::inst = new Log();
-Log::Level Log::log_level = Log::Level::trace;
+Log::Level Log::log_level = Log::Level::info;
 std::string Log::prefix = "";
 
 std::string Log::level_lookup(Level to_lookup) const {
