@@ -34,7 +34,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/co
 
 # Optional compilation flags
 option(BOOST_THREAD "For boost thread pool support" ON)
-option(JNI "For Java VNF hook implementations" OFF)
+option(JNI "For Java VNF hook implementations" ON)
 
 # Search for libpistache
 pkg_check_modules(LIBPISTACHE REQUIRED libpistache)
@@ -77,10 +77,20 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LOG_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE "-lboost_system")
 
 # Search for JNI integration
-find_package(JNI)
-if (JNI_FOUND)
-    include_directories(${JNI_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${JNI_LIBRARIES})
+if (JNI)
+    message(STATUS "JNI enabled, searching for a valid Java installation...")
+    find_package(JNI)
+    if (JNI_FOUND)
+        target_include_directories(${PROJECT_NAME} PRIVATE ${JNI_INCLUDE_DIRS})
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${JNI_LIBRARIES})
+        set(HAS_JNI TRUE)
+    else()
+        message(STATUS "No valid Java found, feature disabled")
+        set(HAS_JNI FALSE)
+    endif()
+else()
+    message(STATUS "JNI disabled")
+    set(HAS_JNI FALSE)
 endif()
 
 execute_process (
@@ -88,10 +98,10 @@ execute_process (
         OUTPUT_VARIABLE distro_name
 )
 if (${distro_name} STREQUAL "ubuntu")
-    set(JSONCPP_INCLUDE_PATH_FIX 1)
+    set(JSONCPP_INCLUDE_PATH_FIX TRUE)
     message(STATUS "Fixing path for jsoncpp on Ubuntu")
 else()
-    set(JSONCPP_INCLUDE_PATH_FIX 0)
+    set(JSONCPP_INCLUDE_PATH_FIX FALSE)
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE "-ljsoncpp")
