@@ -3,6 +3,7 @@
 
 #cmakedefine VERSION "@VERSION@"
 #cmakedefine BUFFER_SIZE @BUFFER_SIZE@
+#cmakedefine TIMEOUT_WAIT @TIMEOUT_WAIT@
 #cmakedefine01 HAS_BOOST_THREAD
 
 #endif // CONFIG_H_IN

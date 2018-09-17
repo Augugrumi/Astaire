@@ -1,12 +1,13 @@
 #include "rawsocketudpconnectionmanager.h"
 
 namespace connection {
-RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(unsigned short int port)
-    : UDPConnectionManager(port) {
+RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(
+        uint32_t to_listen,
+        unsigned short int port) : UDPConnectionManager(port) {
     buf = new char[BUFFER_SIZE];
 
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr.sin_addr.s_addr = htonl(to_listen);
     addr.sin_port = htons(get_port());
 }
 
@@ -20,17 +21,18 @@ void RawSocketUDPConnectionManager::run() {
     pollfd.events = POLLIN;
     pollfd.revents = 0;
 
-    std::string t = "File descriptor value: ";
-    t.append(std::to_string(pollfd.fd));
-    LOG(ldebug, t);
+    LOG(ltrace, "File descriptor value" + std::to_string(pollfd.fd));
 
     if (pollfd.fd < 0) {
         LOG(lfatal, "Impossible to obtain a valid file descriptor");
         exit(1);
     }
 
-    if (bind(pollfd.fd, reinterpret_cast<struct sockaddr *>(&addr), sizeof(addr)) < 0) {
-        LOG(lfatal, "Impossible to bind to port: " + std::to_string(get_port()));
+    if (bind(
+                pollfd.fd,
+                reinterpret_cast<struct sockaddr *>(&addr),
+                sizeof(addr)) < 0) {
+        LOG(lfatal, "Faliure binding to port: " + std::to_string(get_port()));
         exit(1);
     }
 
@@ -56,7 +58,13 @@ void RawSocketUDPConnectionManager::run() {
 
                 sockaddr_in client;
                 socklen_t clientlen = sizeof(client);
-                ssize_t i = recvfrom(pollfd.fd, buf, BUFFER_SIZE, 0, reinterpret_cast<struct sockaddr *>(&client), &clientlen);
+                ssize_t i = recvfrom(
+                            pollfd.fd,
+                            buf,
+                            BUFFER_SIZE,
+                            0,
+                            reinterpret_cast<struct sockaddr *>(&client),
+                            &clientlen);
 
                 if (i > 0) {
                     LOG(ltrace, "Data received");
@@ -65,7 +73,6 @@ void RawSocketUDPConnectionManager::run() {
                         ct++;
                     };
 
-                    /*std::function<void(ssize_t)> empty_lambda = [](ssize_t){};*/
                     send(pollfd.fd, "ACK", &client);
                     ASYNC_TASK(std::bind<void>(packet_printer, buf));
 
@@ -79,8 +86,17 @@ void RawSocketUDPConnectionManager::stop() {
 
 }
 
-void RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr_in* dest, std::function<void(ssize_t)>& cb) {
-    auto async_send = [this] (int fd, const char* message, sockaddr_in* dest, std::function <void(ssize_t)>& cb) {
+void RawSocketUDPConnectionManager::send(
+        int fd,
+        const char* message,
+        sockaddr_in* dest,
+        std::function<void(ssize_t)>& cb) {
+
+    auto async_send = [this] (
+            int fd,
+            const char* message,
+            sockaddr_in* dest,
+            std::function <void(ssize_t)>& cb) {
         ssize_t res = send(fd, message, dest);
         cb(res);
     };
@@ -88,11 +104,23 @@ void RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr_i
     ASYNC_TASK(std::bind<void>(async_send, fd, message, dest, cb));
 }
 
-ssize_t RawSocketUDPConnectionManager::send(int fd, const char* message, sockaddr_in* dest) {
-    return sendto(fd, message, strlen(message), 0, reinterpret_cast<struct sockaddr*>(dest), sizeof(dest));
+ssize_t RawSocketUDPConnectionManager::send(
+        int fd,
+        const char* message, sockaddr_in* dest) {
+    return sendto(
+                fd,
+                message,
+                strlen(message),
+                0,
+                reinterpret_cast<struct sockaddr*>(dest),
+                sizeof(dest));
 }
 
-ssize_t RawSocketUDPConnectionManager::sound_send(int fd, const char* message, sockaddr_in* dest, short retr) {
+ssize_t RawSocketUDPConnectionManager::sound_send(
+        int fd,
+        const char* message,
+        sockaddr_in* dest,
+        short retr) {
 
     ssize_t result;
 
