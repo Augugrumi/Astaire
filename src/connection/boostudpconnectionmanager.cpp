@@ -58,7 +58,7 @@ void BoostUDPConnectionManager::handle_message(
         LOG(ldebug, "Message arrived");
 
         auto printer = [] (
-                boost::array<char, 65536> buffer, std::size_t buffer_size) {
+                boost::array<char, BUFFER_SIZE> buffer, std::size_t buffer_size) {
             LOG(ltrace, "Buffer size " + std::to_string(buffer.size()));
             LOG(ltrace, "Received size " + std::to_string(buffer_size));
 

@@ -16,10 +16,15 @@ RawSocketUDPConnectionManager::~RawSocketUDPConnectionManager() {
 }
 
 void RawSocketUDPConnectionManager::run() {
+
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+
     // Setting events for incoming data
-    pollfd.fd = socket(AF_INET, SOCK_DGRAM, 0);
+    pollfd.fd = fd;
     pollfd.events = POLLIN;
     pollfd.revents = 0;
+
+
 
     if (pollfd.fd < 0) {
         LOG(lfatal, "Impossible to obtain a valid file descriptor");
@@ -49,6 +54,11 @@ void RawSocketUDPConnectionManager::run() {
          * specifies. If timeout contains a negative value, the kernel will wait
          * forever. If nfds is zero, poll() becomes a simple millisecond sleep.
          */
+
+        pollfd.fd = fd;
+        pollfd.events = POLLIN;
+        pollfd.revents = 0;
+
         int poll_ret = poll(&pollfd, 1, TIMEOUT_WAIT);
         if (poll_ret > 0) {
             if (pollfd.revents & POLLIN) {
@@ -64,20 +74,26 @@ void RawSocketUDPConnectionManager::run() {
                             reinterpret_cast<struct sockaddr *>(&client),
                             &clientlen);
 
-                if (i > 0) {
-                    LOG(ltrace, "Data received");
-                    auto packet_printer = [&ct, this] (char* buffer) {
-                        char cloned_buffer[BUFFER_SIZE];
+                LOG(ltrace, "After recvfrom()");
 
-                        strcpy(cloned_buffer, buffer);
+                if (i > 0) {
+                    LOG(ltrace, "Data received from recvfrom()");
+                    auto packet_printer = [&ct, this] (char* buffer) {
+
                         std::cout<<ct<<std::endl;
                         ct++;
 
-                        send(cloned_buffer, "localhost", 8769);
+                        send(buffer, "zanna-Lenovo-B590", 8769);
+                        delete buffer;
                     };
 
+                    char* cloned_buffer = new char[BUFFER_SIZE];
+                    strcpy(cloned_buffer, buf);
+                    delete buf;
+                    buf = new char[BUFFER_SIZE];
+
                     send(pollfd.fd, "ACK", &client);
-                    ASYNC_TASK(std::bind<void>(packet_printer, buf));
+                    ASYNC_TASK(std::bind<void>(packet_printer, cloned_buffer));
                 }
             }
         } else {
@@ -152,7 +168,7 @@ ssize_t RawSocketUDPConnectionManager::send(
     for (rp = result; rp != nullptr && send_flag; rp = rp->ai_next) {
 
         sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-        if (sfd > 0) {
+        if (sfd > 0 && connect(sfd, rp->ai_addr, rp->ai_addrlen) != -1) {
             res = send(
                         sfd,
                         message,
