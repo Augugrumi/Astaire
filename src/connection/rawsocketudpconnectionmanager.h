@@ -30,6 +30,7 @@ public:
     // TODO use promise for the async send?
     void send(int, const char*, sockaddr_in*, std::function<void(ssize_t)>&);
     ssize_t send(int, const char*, sockaddr_in*);
+    ssize_t send(const char*, const char*, unsigned short int);
 
     ssize_t sound_send(int, const char*, sockaddr_in* dest, short = 0);
 

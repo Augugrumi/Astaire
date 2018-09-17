@@ -105,7 +105,8 @@ void RawSocketUDPConnectionManager::send(
 
 ssize_t RawSocketUDPConnectionManager::send(
         int fd,
-        const char* message, sockaddr_in* dest) {
+        const char* message,
+        sockaddr_in* dest) {
     return sendto(
                 fd,
                 message,
@@ -113,6 +114,52 @@ ssize_t RawSocketUDPConnectionManager::send(
                 0,
                 reinterpret_cast<struct sockaddr*>(dest),
                 sizeof(*dest));
+}
+
+ssize_t RawSocketUDPConnectionManager::send(
+        const char* message,
+        const char* address,
+        unsigned short int port) {
+
+    // See https://linux.die.net/man/3/getaddrinfo
+    struct addrinfo hints;
+    struct addrinfo *result, *rp;
+    int sfd, s;
+    ssize_t res = -1;
+    bool send_flag = true;
+
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+    hints.ai_socktype = SOCK_DGRAM; /* Datagram socket */
+    hints.ai_flags = 0;
+    hints.ai_protocol = IPPROTO_UDP; /* UDP protocol */
+
+    s = getaddrinfo(address, std::to_string(port).c_str(), &hints, &result);
+
+    if (s != 0) {
+        LOG(lfatal, "Error getting info for: " +
+            std::to_string(*address) +
+            ". Error: " +
+            std::to_string(*gai_strerror(s)))
+        return res;
+    }
+
+    for (rp = result; rp != nullptr && send_flag; rp = rp->ai_next) {
+
+        sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (sfd > 0) {
+            res = send(
+                        sfd,
+                        message,
+                        reinterpret_cast<struct sockaddr_in*>(rp->ai_addr));
+            if (res > 0) {
+                close(sfd);
+                send_flag = false;
+            }
+        }
+    }
+
+    return res;
 }
 
 ssize_t RawSocketUDPConnectionManager::sound_send(
