@@ -33,7 +33,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/co
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection/handler")
 
 # Optional compilation flags
-option(ENABLE_BOOST_THREAD "Enable boost thread support" ON)
+option(BOOST_THREAD "For boost thread pool support" ON)
+option(JNI "For Java VNF hook implementations" OFF)
 
 # Search for libpistache
 pkg_check_modules(LIBPISTACHE REQUIRED libpistache)
@@ -45,7 +46,7 @@ set(BUFFER_SIZE 65536) # Buffer when receiving packets
 set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
 
 # If enabled, search and use boost threads
-if (ENABLE_BOOST_THREAD)
+if (BOOST_THREAD)
     message(STATUS "Trying to use Boost Thread (if Boost version >= 1.66...)")
     # We're going to log only with boost log
     find_package(Boost 1.66 COMPONENTS thread)
