@@ -11,6 +11,9 @@
 
 int main()
 {
+#if DEBUG_BUILD
+    utils::Log::instance()->set_log_level(utils::Log::Level::trace);
+#endif
     LOG(ldebug, "Program started");
     /*Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
     auto opts = Pistache::Http::Endpoint::options().threads(1);

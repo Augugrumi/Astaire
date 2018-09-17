@@ -21,20 +21,30 @@ set_target_properties(
     ${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_NAME}_VERSION_STRING
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+# In debug mode add more compilation flags
+if ((CMAKE_BUILD_TYPE MATCHES Debug)  OR (CMAKE_BUILD_TYPE MATCHES DEBUG))
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+endif()
+
+# Include src/ directories
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/utils")
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection")
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection/handler")
+
+# Optional compilation flags
 option(ENABLE_BOOST_THREAD "Enable boost thread support" ON)
 
+# Search for libpistache
 pkg_check_modules(LIBPISTACHE REQUIRED libpistache)
 target_include_directories(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_LIBRARIES})
 
+# Set buffer limit for UDP Connections
 set(BUFFER_SIZE 65536) # Buffer when receiving packets
 set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
 
+# If enabled, search and use boost threads
 if (ENABLE_BOOST_THREAD)
     message(STATUS "Trying to use Boost Thread (if Boost version >= 1.66...)")
     # We're going to log only with boost log
@@ -52,21 +62,21 @@ else()
 
     find_package(Threads REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE "-pthread")
-
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LOG_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE "-lboost_thread")
 
+# Boost core is needed
 find_package(Boost 1.58 COMPONENTS system REQUIRED)
 add_definitions(-DSO)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LOG_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE "-lboost_system")
 
+# Search for JNI integration
 find_package(JNI)
-
 if (JNI_FOUND)
     include_directories(${JNI_INCLUDE_DIRS})
     target_link_libraries(${PROJECT_NAME} PRIVATE ${JNI_LIBRARIES})
@@ -76,13 +86,12 @@ execute_process (
         COMMAND bash -c "cat /etc/os-release | grep ID= | head -n1 | cut -d\"=\" -f2 | tr -d '[:space:]'"
         OUTPUT_VARIABLE distro_name
 )
-message("-- Checking for distro in use... ${distro_name}")
 if (${distro_name} STREQUAL "ubuntu")
     set(JSONCPP_INCLUDE_PATH_FIX 1)
+    message(STATUS "Fixing path for jsoncpp on Ubuntu")
 else()
     set(JSONCPP_INCLUDE_PATH_FIX 0)
 endif()
-message("INCLUDE ${JSONCPP_INCLUDE_PATH_FIX}")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE "-ljsoncpp")
 
