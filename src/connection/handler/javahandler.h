@@ -5,6 +5,9 @@
 #ifndef ASTAIRE_JAVAHANDLER_H
 #define ASTAIRE_JAVAHANDLER_H
 
+#include "config.h"
+#if HAS_JNI
+
 #include <jni.h>
 #include <iostream>
 #include <stdio.h>
@@ -30,5 +33,7 @@ namespace connection{
         };
     } // namespace handler
 } // namespace connection
+
+#endif
 
 #endif //ASTAIRE_JAVAHANDLER_H

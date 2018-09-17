@@ -3,6 +3,7 @@
 //
 
 #include "javahandler.h"
+#if HAS_JNI
 
 namespace connection {
     namespace handler {
@@ -94,3 +95,5 @@ namespace connection {
         }
     } // namespace handler
 } // namespace connection
+
+#endif

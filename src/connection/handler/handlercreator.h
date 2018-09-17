@@ -10,8 +10,12 @@
 
 #include "log.h"
 #include "handler/abshandler.h"
-#include "handler/javahandler.h"
 #include "handler/printerhandler.h"
+
+#include "config.h"
+#if HAS_JNI
+#include "handler/javahandler.h"
+#endif
 
 namespace connection {
     namespace handler {

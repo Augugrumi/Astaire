@@ -34,7 +34,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/co
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection/handler")
 
 # Optional compilation flags
-option(ENABLE_BOOST_THREAD "Enable boost thread support" ON)
+option(BOOST_THREAD "For boost thread pool support" ON)
+option(JNI "For Java VNF hook implementations" ON)
 
 # Search for libpistache
 pkg_check_modules(LIBPISTACHE REQUIRED libpistache)
@@ -46,7 +47,7 @@ set(BUFFER_SIZE 65536) # Buffer when receiving packets
 set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
 
 # If enabled, search and use boost threads
-if (ENABLE_BOOST_THREAD)
+if (BOOST_THREAD)
     message(STATUS "Trying to use Boost Thread (if Boost version >= 1.66...)")
     # We're going to log only with boost log
     find_package(Boost 1.66 COMPONENTS thread)
@@ -77,10 +78,20 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LOG_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE "-lboost_system")
 
 # Search for JNI integration
-find_package(JNI)
-if (JNI_FOUND)
-    include_directories(${JNI_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${JNI_LIBRARIES})
+if (JNI)
+    message(STATUS "JNI enabled, searching for a valid Java installation...")
+    find_package(JNI)
+    if (JNI_FOUND)
+        target_include_directories(${PROJECT_NAME} PRIVATE ${JNI_INCLUDE_DIRS})
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${JNI_LIBRARIES})
+        set(HAS_JNI TRUE)
+    else()
+        message(STATUS "No valid Java found, feature disabled")
+        set(HAS_JNI FALSE)
+    endif()
+else()
+    message(STATUS "JNI disabled")
+    set(HAS_JNI FALSE)
 endif()
 
 execute_process (
@@ -90,9 +101,10 @@ execute_process (
 
 message(STATUS "Checking for distro in use... ${distro_name}")
 if (${distro_name} STREQUAL "ubuntu")
-    set(JSONCPP_INCLUDE_PATH_FIX 1)
+    set(JSONCPP_INCLUDE_PATH_FIX TRUE)
+    message(STATUS "Fixing path for jsoncpp on Ubuntu")
 else()
-    set(JSONCPP_INCLUDE_PATH_FIX 0)
+    set(JSONCPP_INCLUDE_PATH_FIX FALSE)
 endif()
 message("INCLUDE ${JSONCPP_INCLUDE_PATH_FIX}")
 
