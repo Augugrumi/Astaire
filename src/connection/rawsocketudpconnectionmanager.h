@@ -9,6 +9,7 @@
 #include "udpconnectionmanager.h"
 #include "log.h"
 #include "asynctaskexecutor.h"
+#include "config.h"
 
 // FIXME for test purpose only
 #include <chrono>
@@ -16,13 +17,11 @@
 #include <iostream>
 // END FIXME
 
-#define TIMEOUT_WAIT -1 // No timeout
-
 namespace connection {
 class RawSocketUDPConnectionManager : public UDPConnectionManager
 {
 public:
-    RawSocketUDPConnectionManager(unsigned short int);
+    RawSocketUDPConnectionManager(uint32_t, unsigned short int);
     ~RawSocketUDPConnectionManager();
 
     void run();
