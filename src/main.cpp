@@ -1,6 +1,7 @@
 #include <pistache/endpoint.h>
 #include <pistache/router.h>
 #include <boost/asio.hpp>
+#include <functional>
 
 #include "connection/tcpconnectionmanager.h"
 #include "connection/boostudpconnectionmanager.h"
@@ -54,6 +55,7 @@ int main(int argc, char* argv[])
                     utils::JsonUtils::JsonWrapper(path).getField(utils::JsonUtils::LAUNGUAGE), path);
 
     connection::RawSocketUDPConnectionManager conn(INADDR_ANY, 8767, handler);
+    signal(SIGINT, connection::RawSocketUDPConnectionManager::counterprinter);
 
     conn.run();
 
