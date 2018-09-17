@@ -75,7 +75,6 @@ void RawSocketUDPConnectionManager::run() {
 
                     send(pollfd.fd, "ACK", &client);
                     ASYNC_TASK(std::bind<void>(packet_printer, buf));
-
                 }
             }
         }
