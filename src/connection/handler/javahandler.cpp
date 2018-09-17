@@ -113,7 +113,6 @@ namespace connection {
                 delete jbody;
             }
 
-            //jvm->DestroyJavaVM();
             return new_pkt;
 
         }
@@ -123,6 +122,10 @@ namespace connection {
                                config->getField(utils::JsonUtils::CLASS_NAME),
                                config->getField(utils::JsonUtils::METHOD),
                                message, size);
+        }
+
+        JavaHandler::~JavaHandler() {
+            jvm->DestroyJavaVM();
         }
     } // namespace handler
 } // namespace connection

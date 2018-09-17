@@ -34,6 +34,7 @@ namespace connection{
         public:
             JavaHandler(const std::string& config_path);
             void handler_request(unsigned char* message, std::size_t size);
+            ~JavaHandler();
         };
     } // namespace handler
 } // namespace connection

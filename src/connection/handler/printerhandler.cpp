@@ -8,7 +8,7 @@ namespace handler {
 
 PrinterHandler::PrinterHandler() : AbsHandler(utils::JsonUtils::DEFAULT_CONFIG_PATH) {}
 
-void connection::handler::PrinterHandler::handler_request(unsigned char *message, std::size_t size) {
+void PrinterHandler::handler_request(unsigned char *message, std::size_t size) {
     std::cout << "Message size:\n\t" << size << std::endl;
     std::cout << "Message:\n\t" << message << std::endl;
 }
