@@ -77,12 +77,6 @@ void RawSocketUDPConnectionManager::run() {
                     };
 
                     ASYNC_TASK(std::bind<void>(packet_printer, buf));
-                    int err = send(pollfd.fd, "ACK", &client);
-                    if (err < 0){
-                        LOG(lfatal, std::strerror(errno));
-                        exit(1);
-                    }
-
                 }
             }
         }
@@ -119,7 +113,7 @@ ssize_t RawSocketUDPConnectionManager::send(
                 message,
                 strlen(message),
                 0,
-                (struct sockaddr*)(dest),
+                reinterpret_cast<struct sockaddr*>(dest),
                 sizeof(*dest));
 }
 
