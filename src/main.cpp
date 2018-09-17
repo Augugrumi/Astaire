@@ -10,12 +10,11 @@
 #include "utils/log.h"
 
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 #if DEBUG_BUILD
     utils::Log::instance()->set_log_level(utils::Log::Level::trace);
 #endif
-    LOG(ldebug, "Program started");
+    LOG(linfo, "Astaire started");
     /*Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
     auto opts = Pistache::Http::Endpoint::options().threads(1);
     Pistache::Http::Endpoint server(addr);

@@ -23,8 +23,6 @@ void RawSocketUDPConnectionManager::run() {
     pollfd.events = POLLIN;
     pollfd.revents = 0;
 
-    LOG(ltrace, "File descriptor value" + std::to_string(pollfd.fd));
-
     if (pollfd.fd < 0) {
         LOG(lfatal, "Impossible to obtain a valid file descriptor");
         exit(1);
@@ -73,7 +71,14 @@ void RawSocketUDPConnectionManager::run() {
                     auto packet_printer = [&ct, this] (char* buffer) {
                         unsigned  char* ubuffer = reinterpret_cast<unsigned char*>(buffer);
                         this->handler->handler_request(ubuffer, sizeof(ubuffer));
+
+                        char cloned_buffer[BUFFER_SIZE];
+
+                        strcpy(cloned_buffer, buffer);
+                        std::cout<<ct<<std::endl;
                         ct++;
+
+                        send(cloned_buffer, "localhost", 8769);
                     };
 
                     ASYNC_TASK(std::bind<void>(packet_printer, buf));
@@ -85,6 +90,8 @@ void RawSocketUDPConnectionManager::run() {
 
                 }
             }
+        } else {
+            LOG(lfatal, "Error fetching data in poll()");
         }
     }
 }
@@ -97,7 +104,7 @@ void RawSocketUDPConnectionManager::send(
         int fd,
         const char* message,
         sockaddr_in* dest,
-        std::function<void(ssize_t)>& cb) {
+        std::function<void(ssize_t)>& cb) const {
 
     auto async_send = [this] (
             int fd,
@@ -113,14 +120,62 @@ void RawSocketUDPConnectionManager::send(
 
 ssize_t RawSocketUDPConnectionManager::send(
         int fd,
-        const char* message, sockaddr_in* dest) {
+        const char* message,
+        sockaddr_in* dest) const {
     return sendto(
                 fd,
                 message,
                 strlen(message),
                 0,
-                (struct sockaddr*)(dest),
+                reinterpret_cast<struct sockaddr*>(dest),
                 sizeof(*dest));
+}
+
+ssize_t RawSocketUDPConnectionManager::send(
+        const char* message,
+        const char* address,
+        unsigned short int port) const {
+
+    // See https://linux.die.net/man/3/getaddrinfo
+    struct addrinfo hints;
+    struct addrinfo *result, *rp;
+    int sfd, s;
+    ssize_t res = -1;
+    bool send_flag = true;
+
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+    hints.ai_socktype = SOCK_DGRAM; /* Datagram socket */
+    hints.ai_flags = 0;
+    hints.ai_protocol = IPPROTO_UDP; /* UDP protocol */
+
+    s = getaddrinfo(address, std::to_string(port).c_str(), &hints, &result);
+
+    if (s != 0) {
+        LOG(lfatal, "Error getting info for: " +
+            std::to_string(*address) +
+            ". Error: " +
+            std::to_string(*gai_strerror(s)))
+        return res;
+    }
+
+    for (rp = result; rp != nullptr && send_flag; rp = rp->ai_next) {
+
+        sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (sfd > 0) {
+            res = send(
+                        sfd,
+                        message,
+                        reinterpret_cast<struct sockaddr_in*>(rp->ai_addr));
+            if (res > 0) {
+                send_flag = false;
+            }
+        }
+        close(sfd);
+    }
+
+    freeaddrinfo(result);
+    return res;
 }
 
 ssize_t RawSocketUDPConnectionManager::sound_send(
