@@ -12,7 +12,8 @@ add_executable(${PROJECT_NAME}
     "connection/rawsocketudpconnectionmanager.cpp"
     "connection/handler/javahandler.cpp"
     "connection/handler/abshandler.cpp"
-    "utils/jsonutils.cpp")
+    "utils/jsonutils.cpp"
+    "connection/handler/handlercreator.cpp")
 
 
 
