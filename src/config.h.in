@@ -5,5 +5,6 @@
 #cmakedefine BUFFER_SIZE @BUFFER_SIZE@
 #cmakedefine TIMEOUT_WAIT @TIMEOUT_WAIT@
 #cmakedefine01 HAS_BOOST_THREAD
+#cmakedefine01 JSONCPP_INCLUDE_PATH_FIX
 
 #endif // CONFIG_H_IN
