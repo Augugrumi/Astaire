@@ -32,7 +32,7 @@ int main()
     /*boost::asio::io_service service;
     connection::BoostUDPConnectionManager conn(service, 8767);*/
 
-    connection::RawSocketUDPConnectionManager conn(8767);
+    connection::RawSocketUDPConnectionManager conn(INADDR_ANY, 8767);
 
     conn.run();
 

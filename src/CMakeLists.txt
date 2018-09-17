@@ -32,7 +32,8 @@ pkg_check_modules(LIBPISTACHE REQUIRED libpistache)
 target_include_directories(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_LIBRARIES})
 
-set(BUFFER_SIZE 65536)
+set(BUFFER_SIZE 65536) # Buffer when receiving packets
+set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
 
 if (ENABLE_BOOST_THREAD)
     message(STATUS "Trying to use Boost Thread (if Boost version >= 1.66...)")
