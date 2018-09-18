@@ -8,6 +8,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
+#include <csignal>
 
 #include "udpconnectionmanager.h"
 #include "log.h"
@@ -37,11 +38,14 @@ public:
 
     ssize_t sound_send(int, const char*, sockaddr_in* dest, short = 0);
 
+    static void counterprinter(int);
+
 private:
     struct pollfd pollfd;
     struct sockaddr_in addr;
     socklen_t addrlen;
     char* buf;
+    static std::atomic_int_fast64_t ct;
 };
 }
 

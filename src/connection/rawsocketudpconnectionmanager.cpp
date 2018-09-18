@@ -1,9 +1,17 @@
 #include "rawsocketudpconnectionmanager.h"
 
 namespace connection {
+
+std::atomic_int_fast64_t RawSocketUDPConnectionManager::ct(0);
+
+void RawSocketUDPConnectionManager::counterprinter(int i) {
+    LOG(linfo, "Number of packets: " + std::to_string(ct));
+    exit(0);
+}
+
 RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(
         uint32_t to_listen,
-        unsigned short int port) : UDPConnectionManager(port) {
+        unsigned short int port) : UDPConnectionManager(port){
     buf = new char[BUFFER_SIZE];
 
     addr.sin_family = AF_INET;
@@ -38,8 +46,6 @@ void RawSocketUDPConnectionManager::run() {
         LOG(lfatal, "Faliure binding to port: " + std::to_string(get_port()));
         exit(1);
     }
-
-    std::atomic_int_fast64_t ct(0);
 
     // Main loop
     while (true) {
@@ -76,14 +82,14 @@ void RawSocketUDPConnectionManager::run() {
 
                 if (i > 0) {
                     LOG(ltrace, "Data received from recvfrom()");
-                    auto packet_printer = [&ct, this] (char* buffer) {
+                    auto packet_printer = [this] (char* buffer) {
 
-                        LOG(linfo, "-- Buffer --");
+                        /*LOG(linfo, "-- Buffer --");
                         LOG(linfo, buffer);
                         LOG(linfo, "-- End buf--");
 
                         std::cout<<ct<<std::endl;
-                        ct++;
+                        */ct++;
 
                         send(buffer, "localhost", 8769);
                         delete buffer;

@@ -1,6 +1,7 @@
 #include <pistache/endpoint.h>
 #include <pistache/router.h>
 #include <boost/asio.hpp>
+#include <functional>
 
 #include "connection/tcpconnectionmanager.h"
 #include "connection/boostudpconnectionmanager.h"
@@ -34,7 +35,9 @@ int main()
     /*boost::asio::io_service service;
     connection::BoostUDPConnectionManager conn(service, 8767);*/
 
+
     connection::RawSocketUDPConnectionManager conn(INADDR_ANY, 8767);
+    signal(SIGINT, connection::RawSocketUDPConnectionManager::counterprinter);
 
     conn.run();
 
