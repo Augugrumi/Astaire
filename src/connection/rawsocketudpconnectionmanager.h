@@ -8,7 +8,6 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
-#include <csignal>
 
 #include "udpconnectionmanager.h"
 #include "log.h"
@@ -38,7 +37,7 @@ public:
 
     ssize_t sound_send(int, const char*, size_t, sockaddr_in*, short = 0);
 
-    static void counterprinter(int);
+    static void counter_printer(int);
 
 private:
     struct pollfd pollfd;

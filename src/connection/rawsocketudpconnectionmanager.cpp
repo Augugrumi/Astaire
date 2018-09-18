@@ -4,14 +4,9 @@ namespace connection {
 
 std::atomic_int_fast64_t RawSocketUDPConnectionManager::ct(0);
 
-void RawSocketUDPConnectionManager::counterprinter(int i) {
-    LOG(linfo, "Number of packets: " + std::to_string(ct));
-    exit(0);
-}
-
 RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(
         uint32_t to_listen,
-        unsigned short int port) : UDPConnectionManager(port){
+        unsigned short int port) : UDPConnectionManager(port) {
     buf = new char[BUFFER_SIZE];
 
     addr.sin_family = AF_INET;
@@ -218,5 +213,10 @@ ssize_t RawSocketUDPConnectionManager::sound_send(
     }
 
     return result;
+}
+
+void RawSocketUDPConnectionManager::counter_printer(int i) {
+    LOG(linfo, "Number of packets: " + std::to_string(ct));
+    exit(0);
 }
 }

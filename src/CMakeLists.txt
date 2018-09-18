@@ -13,7 +13,9 @@ add_executable(${PROJECT_NAME}
     "connection/handler/javahandler.cpp"
     "connection/handler/abshandler.cpp"
     "utils/jsonutils.cpp"
-    "connection/handler/handlercreator.cpp" connection/handler/printerhandler.cpp connection/handler/printerhandler.h)
+    "connection/handler/handlercreator.cpp"
+    "connection/handler/printerhandler.cpp"
+    "connection/handler/printerhandler.h")
 
 
 
@@ -43,7 +45,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_LIBRARIES})
 
 # Set buffer limit for UDP Connections
-set(BUFFER_SIZE 65586) # Buffer when receiving packets
+set(BUFFER_SIZE 65536) # Buffer when receiving packets
 set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
 
 # If enabled, search and use boost threads
