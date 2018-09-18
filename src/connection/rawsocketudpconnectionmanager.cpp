@@ -91,12 +91,7 @@ void RawSocketUDPConnectionManager::run() {
                          std::cout<<ct<<std::endl;
                         ct++;
 
-                        std::string a = "ciaone " + std::to_string(ct);
-
-                        const char* aa = a.c_str();
-
-                        //send(buffer, static_cast<size_t>(i), "zanna-Lenovo-B590", 8767);
-                        send(aa, static_cast<size_t>(strlen(aa)), "zanna-Lenovo-B590", 8767);
+                        send(buffer, static_cast<size_t>(i), "localhost", 8767);
                         delete buffer;
                     };
 
