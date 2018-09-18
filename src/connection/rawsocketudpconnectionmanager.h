@@ -13,12 +13,12 @@
 #include "log.h"
 #include "asynctaskexecutor.h"
 #include "config.h"
+#include "handler/abshandler.h"
 
 // FIXME for test purpose only
 #include <chrono>
 #include <atomic>
 #include <iostream>
-#include "handler/javahandler.h"
 // END FIXME
 
 //#include "handler/abshandler.h"
