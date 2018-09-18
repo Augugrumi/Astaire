@@ -77,3 +77,5 @@ build/
 # clion
 .idea/*
 cmake-build-debug/*
+.class
+conf.json

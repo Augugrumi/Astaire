@@ -5,16 +5,11 @@ namespace connection {
 
 std::atomic_int_fast64_t RawSocketUDPConnectionManager::ct(0);
 
-void RawSocketUDPConnectionManager::counterprinter(int i) {
-    LOG(linfo, "Number of packets: " + std::to_string(ct));
-    exit(0);
-}
-
 RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(
         uint32_t to_listen,
         unsigned short int port,
-        handler::AbsHandler* abshandler) : UDPConnectionManager(port), handler(abshandler) {
-
+        handler::AbsHandler* abshandler)
+    : UDPConnectionManager(port), handler(abshandler) {
     buf = new char[BUFFER_SIZE];
 
     addr.sin_family = AF_INET;
@@ -42,10 +37,9 @@ void RawSocketUDPConnectionManager::run() {
         exit(1);
     }
 
-    if (bind(
-                pollfd.fd,
-                (struct sockaddr*)&addr,
-                sizeof(addr)) < 0) {
+    if (bind(pollfd.fd,
+             reinterpret_cast<struct sockaddr*>(&addr),
+             sizeof(addr)) < 0) {
         LOG(lfatal, "Faliure binding to port: " + std::to_string(get_port()));
         exit(1);
     }
@@ -80,24 +74,23 @@ void RawSocketUDPConnectionManager::run() {
                             buf,
                             BUFFER_SIZE,
                             0,
-                            (struct sockaddr*)&client,
+                            reinterpret_cast<struct sockaddr*>(&client),
                             &clientlen);
 
                 if (i > 0) {
                     LOG(ltrace, "Data received from recvfrom()");
                     auto packet_printer = [&i, this] (char* buffer) {
-                        unsigned  char* ubuffer = reinterpret_cast<unsigned char*>(buffer);
-                        this->handler->handler_request(ubuffer, sizeof(ubuffer));
+                        uint8_t* ubuffer = reinterpret_cast<uint8_t*>(buffer);
+                        handler->handler_request(ubuffer, sizeof(ubuffer));
 
-                        LOG(linfo, "-- Buffer --");
-                        LOG(linfo, buffer);
-                        LOG(linfo, "-- End buf--");
-
-                         std::cout<<ct<<std::endl;
+                        LOG(ltrace, "Packet count: " + std::to_string(ct));
                         ct++;
 
-                        send(buffer, static_cast<size_t>(i), "localhost", 8767);
-                        delete buffer;
+                        send(reinterpret_cast<char*>(ubuffer),
+                             static_cast<size_t>(i),
+                             "localhost",
+                             8768);
+                        delete ubuffer;
                     };
 
                     char* cloned_buffer = buf;
@@ -223,5 +216,11 @@ ssize_t RawSocketUDPConnectionManager::sound_send(
     }
 
     return result;
+}
+
+void RawSocketUDPConnectionManager::counter_printer(int i) {
+    // TODO Switch the signal
+    LOG(linfo, "Number of packets: " + std::to_string(ct));
+    exit(0);
 }
 }

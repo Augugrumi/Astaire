@@ -7,13 +7,16 @@
 namespace connection{
 namespace handler{
 
-AbsHandler *HandlerCreator::getHandlerByLanguageName(const std::string &language, const std::string &config_file) {
+AbsHandler *HandlerCreator::getHandlerByLanguageName(
+        const std::string &language,
+        const std::string &config_file) {
 #if HAS_JNI
     if (boost::iequals("java", language)) {
+        LOG(linfo, "Using Java handler");
         return new JavaHandler(config_file);
     }
 #endif
-    LOG(ldebug, "Returning dummy handler")
+    LOG(linfo, "No suitable handler detected, using default one");
     return new PrinterHandler();
 }
 
