@@ -13,7 +13,9 @@ add_executable(${PROJECT_NAME}
     "connection/handler/javahandler.cpp"
     "connection/handler/abshandler.cpp"
     "utils/jsonutils.cpp"
-    "connection/handler/handlercreator.cpp" connection/handler/printerhandler.cpp connection/handler/printerhandler.h)
+    "connection/handler/handlercreator.cpp"
+    "connection/handler/printerhandler.cpp"
+    "connection/handler/printerhandler.h")
 
 
 

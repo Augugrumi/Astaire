@@ -7,6 +7,7 @@
 #include <cstring>
 #include <netdb.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "udpconnectionmanager.h"
 #include "log.h"
@@ -33,11 +34,13 @@ public:
     void stop();
 
     // TODO use promise for the async send?
-    void send(int, const char*, sockaddr_in*, std::function<void(ssize_t)>&) const;
-    ssize_t send(int, const char*, sockaddr_in*) const;
-    ssize_t send(const char*, const char*, unsigned short int) const;
+    void send(int, const char*, size_t, sockaddr_in*, std::function<void(ssize_t)>&) const;
+    ssize_t send(int, const char*, size_t, sockaddr_in*) const;
+    ssize_t send(const char*, size_t, const char*, unsigned short int) const;
 
-    ssize_t sound_send(int, const char*, sockaddr_in* dest, short = 0);
+    ssize_t sound_send(int, const char*, size_t, sockaddr_in*, short = 0);
+
+    static void counter_printer(int);
 
 private:
     struct pollfd pollfd;
@@ -45,6 +48,8 @@ private:
     socklen_t addrlen;
     char* buf;
     handler::AbsHandler* handler;
+    static std::atomic_int_fast64_t ct;
+
 };
 }
 
