@@ -23,64 +23,6 @@ RawSocketUDPConnectionManager::~RawSocketUDPConnectionManager() {
     delete buf;
 }
 
-/*int RawSocketUDPConnectionManager::start_epoll(
-        int fd,
-        int sync_timer_fd,
-        unsigned int num_local_flow_addr,
-        int* flow_id
-        ) {
-
-    fd = epoll_create1(0);
-    if(fd < 0) {
-        LOG(lfatal, "failed to create epoll on M1Sync");
-        return -1;
-    }
-
-    struct epoll_event event;
-    memset(&event, 0, sizeof event);
-    event.events = EPOLLIN;
-
-    event.data.u32 = static_cast<uint32_t>(-1);
-    if (epoll_ctl(fd, EPOLL_CTL_ADD, sync_timer_fd, &event) != 0 ) {
-        LOG(lfatal, "epoll: error adding sync data hook");
-        LOG(lfatal, strerror(errno));
-        return -1;
-    }
-
-    for (unsigned int i = 0; i < num_local_flow_addr; i++) {
-        event.data.u32 = i;
-        if (epoll_ctl(fd, EPOLL_CTL_ADD, flow_id[i], &event) != 0 ) {
-            LOG(lfatal, "epoll: error adding sync data hook, ");
-            LOG(lfatal, strerror(errno));
-            return -1;
-        }
-    }
-
-    return 0;
-}*/
-
-/*void RawSocketUDPConnectionMan/ger::run() {
-    const int fd = socket(AF_INET, SOCK_DGRAM, 0);
-    const int sync_timer_fd = -1;
-
-    if (fd < 0) {
-        LOG(lfatal, "Impossible to obtain a valid file descriptor");
-        exit(1);
-    }
-
-    if (bind(
-                fd,
-                reinterpret_cast<struct sockaddr *>(&addr),
-                sizeof(addr)) < 0) {
-        LOG(lfatal, "Faliure binding to port: " + std::to_string(get_port()));
-        close(fd);
-        exit(1);
-    }
-
-
-
-}*/
-
 void RawSocketUDPConnectionManager::run() {
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -146,10 +88,15 @@ void RawSocketUDPConnectionManager::run() {
                         LOG(linfo, buffer);
                         LOG(linfo, "-- End buf--");
 
-                        std::cout<<ct<<std::endl;
+                         std::cout<<ct<<std::endl;
                         ct++;
 
-                        send(buffer, static_cast<size_t>(i), "zanna-Lenovo-B590", 8767);
+                        std::string a = "ciaone " + std::to_string(ct);
+
+                        const char* aa = a.c_str();
+
+                        //send(buffer, static_cast<size_t>(i), "zanna-Lenovo-B590", 8767);
+                        send(aa, static_cast<size_t>(strlen(aa)), "zanna-Lenovo-B590", 8767);
                         delete buffer;
                     };
 

@@ -47,7 +47,6 @@ private:
     char* buf;
     static std::atomic_int_fast64_t ct;
 
-    //int start_epoll(int, int, unsigned int, int*);
 };
 }
 
