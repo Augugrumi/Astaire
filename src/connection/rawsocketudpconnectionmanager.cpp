@@ -74,26 +74,30 @@ void RawSocketUDPConnectionManager::run() {
                             reinterpret_cast<struct sockaddr *>(&client),
                             &clientlen);
 
-                LOG(ltrace, "After recvfrom()");
-
                 if (i > 0) {
                     LOG(ltrace, "Data received from recvfrom()");
                     auto packet_printer = [&ct, this] (char* buffer) {
 
+                        LOG(linfo, "-- Buffer --");
+                        LOG(linfo, buffer);
+                        LOG(linfo, "-- End buf--");
+
                         std::cout<<ct<<std::endl;
                         ct++;
 
-                        send(buffer, "zanna-Lenovo-B590", 8769);
+                        send(buffer, "localhost", 8769);
                         delete buffer;
                     };
 
-                    char* cloned_buffer = new char[BUFFER_SIZE];
-                    strcpy(cloned_buffer, buf);
-                    delete buf;
+                    char* cloned_buffer = buf;
                     buf = new char[BUFFER_SIZE];
 
                     send(pollfd.fd, "ACK", &client);
                     ASYNC_TASK(std::bind<void>(packet_printer, cloned_buffer));
+                } else if (errno != 0) {
+                    LOG(lfatal, "Errno: " + std::to_string(errno));
+                    LOG(lfatal, strerror(errno));
+                    exit(1);
                 }
             }
         } else {

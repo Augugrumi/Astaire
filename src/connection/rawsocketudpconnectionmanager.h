@@ -7,6 +7,7 @@
 #include <cstring>
 #include <netdb.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "udpconnectionmanager.h"
 #include "log.h"
