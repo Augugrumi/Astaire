@@ -23,6 +23,64 @@ RawSocketUDPConnectionManager::~RawSocketUDPConnectionManager() {
     delete buf;
 }
 
+/*int RawSocketUDPConnectionManager::start_epoll(
+        int fd,
+        int sync_timer_fd,
+        unsigned int num_local_flow_addr,
+        int* flow_id
+        ) {
+
+    fd = epoll_create1(0);
+    if(fd < 0) {
+        LOG(lfatal, "failed to create epoll on M1Sync");
+        return -1;
+    }
+
+    struct epoll_event event;
+    memset(&event, 0, sizeof event);
+    event.events = EPOLLIN;
+
+    event.data.u32 = static_cast<uint32_t>(-1);
+    if (epoll_ctl(fd, EPOLL_CTL_ADD, sync_timer_fd, &event) != 0 ) {
+        LOG(lfatal, "epoll: error adding sync data hook");
+        LOG(lfatal, strerror(errno));
+        return -1;
+    }
+
+    for (unsigned int i = 0; i < num_local_flow_addr; i++) {
+        event.data.u32 = i;
+        if (epoll_ctl(fd, EPOLL_CTL_ADD, flow_id[i], &event) != 0 ) {
+            LOG(lfatal, "epoll: error adding sync data hook, ");
+            LOG(lfatal, strerror(errno));
+            return -1;
+        }
+    }
+
+    return 0;
+}*/
+
+/*void RawSocketUDPConnectionMan/ger::run() {
+    const int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    const int sync_timer_fd = -1;
+
+    if (fd < 0) {
+        LOG(lfatal, "Impossible to obtain a valid file descriptor");
+        exit(1);
+    }
+
+    if (bind(
+                fd,
+                reinterpret_cast<struct sockaddr *>(&addr),
+                sizeof(addr)) < 0) {
+        LOG(lfatal, "Faliure binding to port: " + std::to_string(get_port()));
+        close(fd);
+        exit(1);
+    }
+
+
+
+}*/
+
 void RawSocketUDPConnectionManager::run() {
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -82,23 +140,23 @@ void RawSocketUDPConnectionManager::run() {
 
                 if (i > 0) {
                     LOG(ltrace, "Data received from recvfrom()");
-                    auto packet_printer = [this] (char* buffer) {
+                    auto packet_printer = [&i, this] (char* buffer) {
 
-                        /*LOG(linfo, "-- Buffer --");
+                        LOG(linfo, "-- Buffer --");
                         LOG(linfo, buffer);
                         LOG(linfo, "-- End buf--");
 
                         std::cout<<ct<<std::endl;
-                        */ct++;
+                        ct++;
 
-                        send(buffer, "localhost", 8769);
+                        send(buffer, static_cast<size_t>(i), "zanna-Lenovo-B590", 8767);
                         delete buffer;
                     };
 
                     char* cloned_buffer = buf;
                     buf = new char[BUFFER_SIZE];
 
-                    send(pollfd.fd, "ACK", &client);
+                    send(pollfd.fd, "ACK", static_cast<size_t>(i), &client);
                     ASYNC_TASK(std::bind<void>(packet_printer, cloned_buffer));
                 } else if (errno != 0) {
                     LOG(lfatal, "Errno: " + std::to_string(errno));
@@ -119,29 +177,32 @@ void RawSocketUDPConnectionManager::stop() {
 void RawSocketUDPConnectionManager::send(
         int fd,
         const char* message,
+        size_t mlen,
         sockaddr_in* dest,
         std::function<void(ssize_t)>& cb) const {
 
     auto async_send = [this] (
             int fd,
             const char* message,
+            size_t mlen,
             sockaddr_in* dest,
             std::function <void(ssize_t)>& cb) {
-        ssize_t res = send(fd, message, dest);
+        ssize_t res = send(fd, message, mlen, dest);
         cb(res);
     };
 
-    ASYNC_TASK(std::bind<void>(async_send, fd, message, dest, cb));
+    ASYNC_TASK(std::bind<void>(async_send, fd, message, mlen, dest, cb));
 }
 
 ssize_t RawSocketUDPConnectionManager::send(
         int fd,
         const char* message,
+        size_t mlen,
         sockaddr_in* dest) const {
     return sendto(
                 fd,
                 message,
-                strlen(message),
+                mlen,
                 0,
                 reinterpret_cast<struct sockaddr*>(dest),
                 sizeof(*dest));
@@ -149,6 +210,7 @@ ssize_t RawSocketUDPConnectionManager::send(
 
 ssize_t RawSocketUDPConnectionManager::send(
         const char* message,
+        size_t mlen,
         const char* address,
         unsigned short int port) const {
 
@@ -182,6 +244,7 @@ ssize_t RawSocketUDPConnectionManager::send(
             res = send(
                         sfd,
                         message,
+                        mlen,
                         reinterpret_cast<struct sockaddr_in*>(rp->ai_addr));
             if (res > 0) {
                 send_flag = false;
@@ -197,12 +260,13 @@ ssize_t RawSocketUDPConnectionManager::send(
 ssize_t RawSocketUDPConnectionManager::sound_send(
         int fd,
         const char* message,
+        size_t mlen,
         sockaddr_in* dest,
         short retr) {
 
     ssize_t result;
 
-    while ((result = send(fd, message, dest)) < 0 && retr >= 0) {
+    while ((result = send(fd, message, mlen, dest)) < 0 && retr >= 0) {
         retr--;
     }
 
