@@ -96,11 +96,12 @@ else()
     set(HAS_JNI FALSE)
 endif()
 
+
+find_package(jsoncpp REQUIRED)
 execute_process (
         COMMAND bash -c "cat /etc/os-release | grep ID= | head -n1 | cut -d\"=\" -f2 | tr -d '[:space:]'"
         OUTPUT_VARIABLE distro_name
 )
-
 message(STATUS "Checking for distro in use... ${distro_name}")
 if (${distro_name} STREQUAL "ubuntu")
     set(JSONCPP_INCLUDE_PATH_FIX TRUE)
@@ -108,7 +109,6 @@ if (${distro_name} STREQUAL "ubuntu")
 else()
     set(JSONCPP_INCLUDE_PATH_FIX FALSE)
 endif()
-
 target_link_libraries(${PROJECT_NAME} PRIVATE "-ljsoncpp")
 
 # Create config.h for extra compiler macros
