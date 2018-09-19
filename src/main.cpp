@@ -15,8 +15,11 @@
 
 #if HAS_UDP
 #include "connection/rawsocketudpconnectionmanager.h"
+#include <memory>
+typedef std::shared_ptr<connection::handler::AbsHandler> handle_ptr;
 #endif
 
+namespace ch = connection::handler;
 
 void usage() {
     const char message[] =
@@ -30,6 +33,9 @@ void usage() {
 #if HAS_TCP
             " -t            To set connection type to TCP\n"
 #endif
+            " -l            To specify the port on which the program wait for packets, default '8767'\n"
+            " -i            To specify the IP address to which the program sends packets, default 'localhost'\n"
+            " -f            To specify the port to which sends packets, default '8768'\n"
             " -h            Show this message\n";
     std::cout <<message<<std::endl;
 }
@@ -42,6 +48,9 @@ int main(int argc, char* argv[])
     LOG(linfo, "Astaire started");
 
     std::string path = utils::JsonUtils::DEFAULT_CONFIG_PATH;
+    unsigned short int listen_port = 8767;
+    unsigned short int forward_port = 8768;
+    std::string forward_address = "localhost";
 #if (HAS_UDP and HAS_TCP)
     u_int8_t udp_flag = 0;
     u_int8_t tcp_flag = 0;
@@ -52,7 +61,7 @@ int main(int argc, char* argv[])
 #endif
     int c;
     opterr = 0;
-    while ((c = getopt(argc, (char **)argv, "c:uth")) != -1) {
+    while ((c = getopt(argc, (char **)argv, "c:uthl:i:f:")) != -1) {
         switch(c) {
             case 'c':
                 if(optarg) {
@@ -77,6 +86,24 @@ int main(int argc, char* argv[])
                 usage();
                 exit(EXIT_FAILURE);
 #endif
+            case 'l':
+                if(optarg) {
+                    listen_port = atoi(optarg);
+                }
+                break;
+
+            case 'i':
+                if(optarg) {
+                    forward_address = optarg;
+                }
+                break;
+
+            case 'p':
+                if(optarg) {
+                    forward_port = atoi(optarg);
+                }
+                break;
+
             case 'h':
                 usage();
                 exit(0);
@@ -95,30 +122,44 @@ int main(int argc, char* argv[])
 #if HAS_UDP
     if (udp_flag) {
 
-        connection::handler::AbsHandler* handler =
-                connection::handler::HandlerCreator::getHandlerByLanguageName(
-                        utils::JsonUtils::JsonWrapper(path).getField(utils::JsonUtils::LAUNGUAGE), path);
+        LOG(linfo, "Opening UDP server");
 
-        connection::RawSocketUDPConnectionManager conn(INADDR_ANY, 8767, handler);
-        signal(SIGINT, connection::RawSocketUDPConnectionManager::counter_printer);
+        handle_ptr handler (
+                ch::HandlerCreator::getHandlerByLanguageName(
+                        utils::JsonUtils::JsonWrapper(path)
+                        .getField(utils::JsonUtils::LAUNGUAGE), path)
+                    );
+
+
+        connection::RawSocketUDPConnectionManager conn(INADDR_ANY,
+                                                       listen_port,
+                                                       forward_address,
+                                                       forward_port,
+                                                       handler);
+        signal(SIGINT,
+               connection::RawSocketUDPConnectionManager::counter_printer);
+
+        conn.run();
     }
 #endif
 #if HAS_TCP
     if (tcp_flag) {
+
+        LOG(linfo, "Opening TCP server");
+
         Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
         auto opts = Pistache::Http::Endpoint::options().threads(1);
         Pistache::Http::Endpoint server(addr);
 
-        connection::handler::HelloWorldHandler* test = new connection::handler::HelloWorldHandler();
-        auto bind = Pistache::Rest::Routes::bind(&connection::handler::HelloWorldHandler::onRequest, test);
-
-        LOG(ldebug, "Handler created");
+        ch::HelloWorldHandler* test = new ch::HelloWorldHandler();
+        auto bind = Pistache::Rest::Routes::bind(
+                    &ch::HelloWorldHandler::onRequest,
+                    test);
 
         Pistache::Rest::Router router = Pistache::Rest::Router();
         Pistache::Rest::Routes::Post(router, "/hello", bind);
 
         connection::TCPConnectionManager conn(addr, router, opts);
-        LOG(ldebug, "Handler added");
 
         conn.run();
     }
