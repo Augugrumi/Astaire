@@ -1,7 +1,10 @@
 #ifndef HELLOWORLDHANDLER_H
 #define HELLOWORLDHANDLER_H
 
+#include "config.h"
+#if HAS_TCP
 #include <pistache/async.h>
+
 #include <thread>
 
 #include "binding_handler.h"
@@ -20,4 +23,6 @@ public:
 };
 }
 }
+#endif
+
 #endif // HELLOWORLDHANDLER_H

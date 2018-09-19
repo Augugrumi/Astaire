@@ -81,21 +81,21 @@ void RawSocketUDPConnectionManager::run() {
 
                 if (i > 0) {
                     LOG(ltrace, "Data received from recvfrom()");
-                    auto packet_printer = [&i, this] (char* buffer) {
-                        uint8_t* ubuffer = reinterpret_cast<uint8_t*>(buffer);
-                        handler->handler_request(ubuffer, sizeof(ubuffer));
+                    auto packet_printer = [&i, this] (msgptr buffer) {
+                        buffer = handler->
+                            handler_request(buffer, sizeof(buffer.get()));
 
                         LOG(ltrace, "Packet count: " + std::to_string(ct));
                         ct++;
 
-                        send(reinterpret_cast<char*>(ubuffer),
+                        send(reinterpret_cast<char*>(buffer.get()),
                              static_cast<size_t>(i),
                              "localhost",
                              8768);
-                        delete ubuffer;
                     };
 
-                    char* cloned_buffer = buf;
+                    msgptr cloned_buffer = msgptr(
+                            reinterpret_cast<uint8_t*>(buf));
                     buf = new char[BUFFER_SIZE];
 
                     send(pollfd.fd, "ACK", static_cast<size_t>(i), &client);

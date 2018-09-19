@@ -22,9 +22,8 @@ namespace connection {
 
         class HandlerCreator {
         public:
-            static AbsHandler* getHandlerByLanguageName(
-                    const std::string &,
-                    const std::string &);
+            static AbsHandler* getHandlerByLanguageName(const std::string &,
+                                                        const std::string &);
         };
 
     } // namespace handler

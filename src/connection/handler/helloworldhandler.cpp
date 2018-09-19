@@ -1,5 +1,7 @@
 #include "helloworldhandler.h"
 
+#include "config.h"
+#if HAS_TCP
 namespace connection {
 namespace handler {
 
@@ -22,3 +24,5 @@ void HelloWorldHandler::onRequest(const PConn::Request& request,
 }
 }
 }
+
+#endif

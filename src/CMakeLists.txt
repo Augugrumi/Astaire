@@ -57,7 +57,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_LIBRARIES})
 endif()
 
-# If enabled, search and use boost threads
+# If enabled, search and use Boost threads
 if (BOOST_THREAD)
     message(STATUS "Trying to use Boost Thread (if Boost version >= 1.66...)")
     # We're going to log only with boost log
@@ -72,10 +72,11 @@ if (BOOST_THREAD)
 else()
     message(STATUS "Boost Thread disabled, using standard threads")
     set(HAS_BOOST_THREAD FALSE)
-
-    find_package(Threads REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE "-pthread")
 endif()
+
+# Search for basic Thread support
+find_package(Threads REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE "-pthread")
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LOG_LIBRARIES})
@@ -83,7 +84,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE "-lboost_thread")
 
 # Boost core is needed
 find_package(Boost 1.58 COMPONENTS system REQUIRED)
-add_definitions(-DSO)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LOG_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE "-lboost_system")

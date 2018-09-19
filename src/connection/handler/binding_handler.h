@@ -1,6 +1,9 @@
 #ifndef HANDLER_H
 #define HANDLER_H
 
+#include "config.h"
+#if HAS_TCP
+
 #include <string>
 #include <pistache/endpoint.h>
 #include <pistache/router.h>
@@ -25,5 +28,7 @@ protected:
 };
 }
 }
+
+#endif
 
 #endif // HANDLER_H

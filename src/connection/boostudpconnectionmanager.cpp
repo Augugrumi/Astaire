@@ -1,5 +1,8 @@
 #include "boostudpconnectionmanager.h"
 
+#include "config.h"
+#if HAS_UDP
+
 namespace connection {
 BoostUDPConnectionManager::BoostUDPConnectionManager(
         boost::asio::io_service & new_service,
@@ -88,3 +91,5 @@ void BoostUDPConnectionManager::handle_message(
 }
 
 }
+
+#endif

@@ -6,7 +6,10 @@
 #define ASTAIRE_ABSHANDLER_H
 
 #include <iostream>
+#include <memory>
 #include <jsonutils.h>
+
+typedef std::shared_ptr<uint8_t> msgptr;
 
 namespace connection{
 
@@ -17,7 +20,7 @@ namespace connection{
             utils::JsonUtils::JsonWrapper* config;
         public:
             AbsHandler(const std::string& config_path);
-            virtual void handler_request(unsigned char*, std::size_t)  = 0;
+            virtual msgptr handler_request(msgptr, std::size_t)  = 0;
             virtual ~AbsHandler();
         };
 
