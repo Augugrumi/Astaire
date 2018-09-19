@@ -10,8 +10,15 @@ std::atomic_int_fast64_t RawSocketUDPConnectionManager::ct(0);
 RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(
         uint32_t to_listen,
         unsigned short int port,
-        handler::AbsHandler* abshandler)
-    : UDPConnectionManager(port), handler(abshandler) {
+        const std::string & to_send,
+        unsigned short int port_to_send,
+        std::shared_ptr<handler::AbsHandler> abshandler)
+    : UDPConnectionManager(port),
+      forward_address(to_send),
+      forward_port(port_to_send),
+      handler(abshandler),
+      run_flag(true) {
+
     buf = new char[BUFFER_SIZE];
 
     addr.sin_family = AF_INET;
@@ -24,6 +31,8 @@ RawSocketUDPConnectionManager::~RawSocketUDPConnectionManager() {
 }
 
 void RawSocketUDPConnectionManager::run() {
+
+    run_flag = true;
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -47,7 +56,7 @@ void RawSocketUDPConnectionManager::run() {
     }
 
     // Main loop
-    while (true) {
+    while (run_flag) {
         /*
          * The first parameter, ufds, must point to an array of struct pollfd.
          * Each element in the array specifies a file descriptor that the
@@ -113,7 +122,7 @@ void RawSocketUDPConnectionManager::run() {
 }
 
 void RawSocketUDPConnectionManager::stop() {
-
+    run_flag = false;
 }
 
 void RawSocketUDPConnectionManager::send(

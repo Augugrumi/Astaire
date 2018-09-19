@@ -15,8 +15,11 @@
 
 #if HAS_UDP
 #include "connection/rawsocketudpconnectionmanager.h"
+#include <memory>
+typedef std::shared_ptr<connection::handler::AbsHandler> handle_ptr;
 #endif
 
+namespace ch = connection::handler;
 
 void usage() {
     const char message[] =
@@ -119,32 +122,44 @@ int main(int argc, char* argv[])
 #if HAS_UDP
     if (udp_flag) {
 
-        connection::handler::AbsHandler* handler =
-                connection::handler::HandlerCreator::getHandlerByLanguageName(
-                        utils::JsonUtils::JsonWrapper(path).getField(utils::JsonUtils::LAUNGUAGE), path);
+        LOG(linfo, "Opening UDP server");
 
-        connection::RawSocketUDPConnectionManager conn(INADDR_ANY, listen_port, forward_address, forward_port, handler);
-        signal(SIGINT, connection::RawSocketUDPConnectionManager::counter_printer);
+        handle_ptr handler (
+                ch::HandlerCreator::getHandlerByLanguageName(
+                        utils::JsonUtils::JsonWrapper(path)
+                        .getField(utils::JsonUtils::LAUNGUAGE), path)
+                    );
+
+
+        connection::RawSocketUDPConnectionManager conn(INADDR_ANY,
+                                                       listen_port,
+                                                       forward_address,
+                                                       forward_port,
+                                                       handler);
+        signal(SIGINT,
+               connection::RawSocketUDPConnectionManager::counter_printer);
 
         conn.run();
     }
 #endif
 #if HAS_TCP
     if (tcp_flag) {
+
+        LOG(linfo, "Opening TCP server");
+
         Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
         auto opts = Pistache::Http::Endpoint::options().threads(1);
         Pistache::Http::Endpoint server(addr);
 
-        connection::handler::HelloWorldHandler* test = new connection::handler::HelloWorldHandler();
-        auto bind = Pistache::Rest::Routes::bind(&connection::handler::HelloWorldHandler::onRequest, test);
-
-        LOG(ldebug, "Handler created");
+        ch::HelloWorldHandler* test = new ch::HelloWorldHandler();
+        auto bind = Pistache::Rest::Routes::bind(
+                    &ch::HelloWorldHandler::onRequest,
+                    test);
 
         Pistache::Rest::Router router = Pistache::Rest::Router();
         Pistache::Rest::Routes::Post(router, "/hello", bind);
 
         connection::TCPConnectionManager conn(addr, router, opts);
-        LOG(ldebug, "Handler added");
 
         conn.run();
     }
