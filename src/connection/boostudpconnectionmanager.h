@@ -1,6 +1,9 @@
 #ifndef BOOSTUDPCONNECTIONMANAGER_H
 #define BOOSTUDPCONNECTIONMANAGER_H
 
+#include "config.h"
+#if HAS_UDP
+
 #include <ctime>
 #include <iostream>
 #include <string>
@@ -37,5 +40,7 @@ private:
     void reply(const char*, std::function<void(const char*, int, std::size_t)>&);
 };
 }
+
+#endif
 
 #endif // BOOSTUDPCONNECTIONMANAGER_H
