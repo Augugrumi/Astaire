@@ -59,14 +59,14 @@ JavaHandler::JavaHandler(const std::string &config_file)
     }
 }
 
-unsigned char* JavaHandler::execute_java(const std::string& class_file_path,
+uint8_t* JavaHandler::execute_java(const std::string& class_file_path,
                                          const std::string& class_name,
                                          const std::string& method_name,
                                          unsigned char* pkt,
                                          std::size_t pkt_size) {
     // FIXME remove all std::cout
 
-    uint8_t *new_pkt;
+    uint8_t* new_pkt = nullptr;
     JNIEnv* env;
     JavaVMOption *options = new JavaVMOption[1];
     //setting where to find the java class file
@@ -75,25 +75,31 @@ unsigned char* JavaHandler::execute_java(const std::string& class_file_path,
     //path_with_argument;
     options[0].optionString = const_cast<char *>(s.c_str());
     // minimum Java version
-    vm_args.version = JNI_VERSION_1_6;
+    vm_args.version = JNI_VERSION_1_8;
     // number of options -> the path of .class file
     vm_args.nOptions = 1;
     vm_args.options = options;
     // invalid options make the JVM init fail
     vm_args.ignoreUnrecognized = false;
 
-    jvm->AttachCurrentThreadAsDaemon((void**)&env, nullptr);
+    jvm->AttachCurrentThreadAsDaemon(
+                reinterpret_cast<void **>(&env),
+                nullptr);
 
     jbyteArray ret = env->NewByteArray(pkt_size);
-    env->SetByteArrayRegion(ret, 0, pkt_size, (const jbyte *) pkt);
+    env->SetByteArrayRegion(
+                ret,
+                0,
+                pkt_size,
+                reinterpret_cast<const jbyte*>(pkt));
     jclass cls2 = env->FindClass(const_cast<char *>(class_name.c_str()));
     jmethodID mid = env->GetStaticMethodID(
                 cls2,
                 const_cast<char *>(method_name.c_str()), "([B)[B");
-    jbyteArray jpkt = (jbyteArray)(env->CallStaticObjectMethod(cls2, mid, ret));
+    jbyteArray jpkt = reinterpret_cast<jbyteArray>(
+                env->CallStaticObjectMethod(cls2, mid, ret));
     if (env->ExceptionOccurred()) {
         // exception on method execution occurred
-
         std::string err = "A fatal exception occurred while the JVM was running"
                           "the method. This could be caused by a "
                           "misconfiguration or by using a wrong JVM version."
@@ -109,11 +115,10 @@ unsigned char* JavaHandler::execute_java(const std::string& class_file_path,
         exit(EXIT_FAILURE);
     } else {
         jsize jlen = env->GetArrayLength(jpkt);
-        jbyte *jbody = env->GetByteArrayElements(jpkt, 0);
-        int *array = new int[jlen];
-        uint8_t new_pkt[jlen];
+        jbyte *jbody = env->GetByteArrayElements(jpkt, nullptr);
+        new_pkt = new uint8_t[jlen];
         for (int i = 0; i < jlen; i++) {
-            new_pkt[i] = (uint8_t) jbody[i];
+            new_pkt[i] = jbody[i];
         }
         delete jbody;
     }

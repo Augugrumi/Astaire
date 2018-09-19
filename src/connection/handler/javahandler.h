@@ -25,7 +25,7 @@ private:
     jclass cls2;
     jmethodID mid;
     JavaVM *jvm;
-    unsigned char* execute_java(const std::string&,
+    uint8_t* execute_java(const std::string&,
             const std::string&,
             const std::string&,
             unsigned char*,
