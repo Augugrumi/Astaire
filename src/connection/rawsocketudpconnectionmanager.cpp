@@ -99,8 +99,8 @@ void RawSocketUDPConnectionManager::run() {
 
                         send(reinterpret_cast<char*>(buffer.get()),
                              static_cast<size_t>(i),
-                             "localhost",
-                             8768);
+                             forward_address.c_str(),
+                             forward_port);
                     };
 
                     msgptr cloned_buffer = msgptr(
