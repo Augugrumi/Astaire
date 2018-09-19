@@ -1,21 +1,38 @@
-#include <pistache/router.h>
-#include <boost/asio.hpp>
 #include <csignal>
 
 #include "connection/handler/handlercreator.h"
 #include "connection/handler/abshandler.h"
 #include "utils/log.h"
 #include "log.h"
+
 #if HAS_TCP
-/*#include <pistache/endpoint.h>
-#include <functional>*/
-//#include "connection/tcpconnectionmanager.h"
-//#include "connection/boostudpconnectionmanager.h"
+#include <pistache/router.h>
+#include <pistache/endpoint.h>
+#include <functional>
+#include "connection/tcpconnectionmanager.h"
+#include "connection/handler/helloworldhandler.h"
 #endif
+
 #if HAS_UDP
 #include "connection/rawsocketudpconnectionmanager.h"
 #endif
 
+
+void usage() {
+    const char message[] =
+            "\n"
+            "Example of usage:\n"
+            "\t ./astaire [OPTIONS]\n"
+            " -c         X  To set the path to the configure file, default './conf.json'\n"
+#if HAS_UDP
+            " -u            To set connection type to UDP\n"
+#endif
+#if HAS_TCP
+            " -t            To set connection type to TCP\n"
+#endif
+            " -h            Show this message\n";
+    std::cout <<message<<std::endl;
+}
 
 int main(int argc, char* argv[])
 {
@@ -23,48 +40,88 @@ int main(int argc, char* argv[])
     utils::Log::instance()->set_log_level(utils::Log::Level::trace);
 #endif
     LOG(linfo, "Astaire started");
-    /*Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
-    auto opts = Pistache::Http::Endpoint::options().threads(1);
-    Pistache::Http::Endpoint server(addr);
-
-    connection::handler::HelloWorldHandler* test = new connection::handler::HelloWorldHandler();
-    auto bind = Pistache::Rest::Routes::bind(&connection::handler::HelloWorldHandler::onRequest, test);
-
-    LOG(ldebug, "Handler created");
-
-    Pistache::Rest::Router router = Pistache::Rest::Router();
-    Pistache::Rest::Routes::Post(router, "/hello", bind);
-
-    connection::TCPConnectionManager conn(addr, router, opts);
-    LOG(ldebug, "Handler added");
-
-    conn.run();*/
-
-    /*boost::asio::io_service service;
-    connection::BoostUDPConnectionManager conn(service, 8767);*/
 
     std::string path = utils::JsonUtils::DEFAULT_CONFIG_PATH;
-
-    int c ;
+#if (HAS_UDP and HAS_TCP)
+    u_int8_t udp_flag = 0;
+    u_int8_t tcp_flag = 0;
+#elif HAS_UDP
+    u_int8_t udp_flag = 1;
+#elif HAS_TCP
+    u_int8_t tcp_flag = 1;
+#endif
+    int c;
     opterr = 0;
-    while ((c = getopt(argc, (char **)argv, "c:")) != -1) {
+    while ((c = getopt(argc, (char **)argv, "c:uth")) != -1) {
         switch(c) {
             case 'c':
                 if(optarg) {
                     path = optarg;
                 }
                 break;
+            case 'u':
+#if HAS_UDP
+                udp_flag = 1;
+                break;
+#else
+                LOG(lfatal, "Astaire was not compile with UDP support");
+                usage();
+                exit(EXIT_FAILURE);
+#endif
+            case 't':
+#if HAS_TCP
+                tcp_flag = 1;
+                break;
+#else
+                LOG(lfatal, "Astaire was not compile with TCP support");
+                usage();
+                exit(EXIT_FAILURE);
+#endif
+            case 'h':
+                usage();
+                exit(0);
         }
     }
 
-    connection::handler::AbsHandler* handler =
-            connection::handler::HandlerCreator::getHandlerByLanguageName(
-                    utils::JsonUtils::JsonWrapper(path).getField(utils::JsonUtils::LAUNGUAGE), path);
+#if (HAS_UDP and HAS_TCP)
+    if (udp_flag & tcp_flag) {
+        LOG(lfatal, "Cannot set connection manager both to tcp and udp");
+        usage();
+        exit(EXIT_FAILURE);
+    } else if (!(udp_flag | tcp_flag)) {
+        udp_flag = 1;
+    }
+#endif
+#if HAS_UDP
+    if (udp_flag) {
 
-    connection::RawSocketUDPConnectionManager conn(INADDR_ANY, 8767, handler);
-    signal(SIGINT, connection::RawSocketUDPConnectionManager::counter_printer);
+        connection::handler::AbsHandler* handler =
+                connection::handler::HandlerCreator::getHandlerByLanguageName(
+                        utils::JsonUtils::JsonWrapper(path).getField(utils::JsonUtils::LAUNGUAGE), path);
 
-    conn.run();
+        connection::RawSocketUDPConnectionManager conn(INADDR_ANY, 8767, handler);
+        signal(SIGINT, connection::RawSocketUDPConnectionManager::counter_printer);
+    }
+#endif
+#if HAS_TCP
+    if (tcp_flag) {
+        Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
+        auto opts = Pistache::Http::Endpoint::options().threads(1);
+        Pistache::Http::Endpoint server(addr);
 
+        connection::handler::HelloWorldHandler* test = new connection::handler::HelloWorldHandler();
+        auto bind = Pistache::Rest::Routes::bind(&connection::handler::HelloWorldHandler::onRequest, test);
+
+        LOG(ldebug, "Handler created");
+
+        Pistache::Rest::Router router = Pistache::Rest::Router();
+        Pistache::Rest::Routes::Post(router, "/hello", bind);
+
+        connection::TCPConnectionManager conn(addr, router, opts);
+        LOG(ldebug, "Handler added");
+
+        conn.run();
+    }
+#endif
     return 0;
 }
