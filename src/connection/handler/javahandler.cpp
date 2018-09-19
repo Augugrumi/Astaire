@@ -3,6 +3,7 @@
 //
 
 #include "javahandler.h"
+#include "config.h"
 #if HAS_JNI
 
 namespace connection {
@@ -59,10 +60,10 @@ JavaHandler::JavaHandler(const std::string &config_file)
     }
 }
 
-uint8_t* JavaHandler::execute_java(const std::string& class_file_path,
+std::shared_ptr<uint8_t> JavaHandler::execute_java(const std::string& class_file_path,
                                          const std::string& class_name,
                                          const std::string& method_name,
-                                         unsigned char* pkt,
+                                         std::shared_ptr<uint8_t> pkt,
                                          std::size_t pkt_size) {
     // FIXME remove all std::cout
 
@@ -91,7 +92,7 @@ uint8_t* JavaHandler::execute_java(const std::string& class_file_path,
                 ret,
                 0,
                 pkt_size,
-                reinterpret_cast<const jbyte*>(pkt));
+                reinterpret_cast<const jbyte*>(pkt.get()));
     jclass cls2 = env->FindClass(const_cast<char *>(class_name.c_str()));
     jmethodID mid = env->GetStaticMethodID(
                 cls2,
@@ -123,11 +124,11 @@ uint8_t* JavaHandler::execute_java(const std::string& class_file_path,
         delete jbody;
     }
 
-    return new_pkt;
+    return std::shared_ptr<uint8_t>(new_pkt);
 }
 
-void JavaHandler::handler_request(unsigned char* message, std::size_t size) {
-    message = execute_java(config->getField(utils::JsonUtils::FILE_PATH),
+std::shared_ptr<uint8_t> JavaHandler::handler_request(std::shared_ptr<uint8_t> message, std::size_t size) {
+    return execute_java(config->getField(utils::JsonUtils::FILE_PATH),
                        config->getField(utils::JsonUtils::CLASS_NAME),
                        config->getField(utils::JsonUtils::METHOD),
                        message, size);

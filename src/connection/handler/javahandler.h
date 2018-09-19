@@ -25,14 +25,15 @@ private:
     jclass cls2;
     jmethodID mid;
     JavaVM *jvm;
-    uint8_t* execute_java(const std::string&,
-            const std::string&,
-            const std::string&,
-            unsigned char*,
-            std::size_t);
+    std::shared_ptr<uint8_t> execute_java(const std::string&,
+                                          const std::string&,
+                                          const std::string&,
+                                          std::shared_ptr<uint8_t>,
+                                          std::size_t);
+
 public:
     JavaHandler(const std::string&);
-    void handler_request(unsigned char*, std::size_t);
+    virtual msgptr handler_request(msgptr, std::size_t) override;
     ~JavaHandler();
 };
 } // namespace handler
