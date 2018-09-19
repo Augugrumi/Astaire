@@ -102,7 +102,19 @@ unsigned char* JavaHandler::execute_java(const std::string& class_file_path,
     jbyteArray jpkt = (jbyteArray)(env->CallStaticObjectMethod(cls2, mid, ret));
     if (env->ExceptionOccurred()) {
         // exception on method execution occurred
+
+        std::string err = "A fatal exception occurred while the JVM was running"
+                          "the method. This could be caused by a "
+                          "misconfiguration or by using a wrong JVM version."
+        #if !DEBUG_BUILD
+              " For further information, compile the program in debug mode."
+        #endif
+                ;
+
+        LOG(lfatal, err);
+#if DEBUG_BUILD
         env->ExceptionDescribe();
+#endif
         exit(EXIT_FAILURE);
     } else {
         jsize jlen = env->GetArrayLength(jpkt);
