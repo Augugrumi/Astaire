@@ -5,7 +5,7 @@
 #include <thread>
 
 #include "binding_handler.h"
-#include "../../utils/log.h"
+#include "log.h"
 #include "asynctaskexecutor.h"
 
 namespace connection {

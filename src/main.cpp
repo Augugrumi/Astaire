@@ -1,15 +1,23 @@
-#include <pistache/endpoint.h>
+/*#include <pistache/endpoint.h>
 #include <pistache/router.h>
+#include <boost/asio.hpp>
+#include <functional>*/
+#include <csignal>
 
-#include "connection/connectionmanager.h"
-#include "connection/handler/helloworldhandler.h"
+//#include "connection/tcpconnectionmanager.h"
+//#include "connection/boostudpconnectionmanager.h"
+#include "connection/rawsocketudpconnectionmanager.h"
+#include "connection/handler/handlercreator.h"
+#include "connection/handler/abshandler.h"
 #include "utils/log.h"
 
-
-int main()
+int main(int argc, char* argv[])
 {
-    LOG(ldebug, "Program started");
-    Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
+#if DEBUG_BUILD
+    utils::Log::instance()->set_log_level(utils::Log::Level::trace);
+#endif
+    LOG(linfo, "Astaire started");
+    /*Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
     auto opts = Pistache::Http::Endpoint::options().threads(1);
     Pistache::Http::Endpoint server(addr);
 
@@ -17,9 +25,38 @@ int main()
     auto bind = Pistache::Rest::Routes::bind(&connection::handler::HelloWorldHandler::onRequest, test);
 
     LOG(ldebug, "Handler created");
-    connection::ConnectionManager conn(addr, opts);
-    conn.addRoute(connection::RequestType::Post, "/hello", bind);
+
+    Pistache::Rest::Router router = Pistache::Rest::Router();
+    Pistache::Rest::Routes::Post(router, "/hello", bind);
+
+    connection::TCPConnectionManager conn(addr, router, opts);
     LOG(ldebug, "Handler added");
+
+    conn.run();*/
+
+    /*boost::asio::io_service service;
+    connection::BoostUDPConnectionManager conn(service, 8767);*/
+
+    std::string path = utils::JsonUtils::DEFAULT_CONFIG_PATH;
+
+    int c ;
+    opterr = 0;
+    while ((c = getopt(argc, (char **)argv, "c:")) != -1) {
+        switch(c) {
+            case 'c':
+                if(optarg) {
+                    path = optarg;
+                }
+                break;
+        }
+    }
+
+    connection::handler::AbsHandler* handler =
+            connection::handler::HandlerCreator::getHandlerByLanguageName(
+                    utils::JsonUtils::JsonWrapper(path).getField(utils::JsonUtils::LAUNGUAGE), path);
+
+    connection::RawSocketUDPConnectionManager conn(INADDR_ANY, 8767, handler);
+    signal(SIGINT, connection::RawSocketUDPConnectionManager::counter_printer);
 
     conn.run();
 
