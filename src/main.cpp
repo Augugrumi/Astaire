@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
                 }
                 break;
 
-            case 'p':
+            case 'f':
                 if(optarg) {
                     forward_port = atoi(optarg);
                 }
@@ -121,7 +121,6 @@ int main(int argc, char* argv[])
 #endif
 #if HAS_UDP
     if (udp_flag) {
-
         LOG(linfo, "Opening UDP server");
 
         handle_ptr handler (
@@ -129,7 +128,6 @@ int main(int argc, char* argv[])
                         utils::JsonUtils::JsonWrapper(path)
                         .getField(utils::JsonUtils::LAUNGUAGE), path)
                     );
-
 
         connection::RawSocketUDPConnectionManager conn(INADDR_ANY,
                                                        listen_port,
