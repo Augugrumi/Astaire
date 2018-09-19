@@ -15,23 +15,27 @@
 #include <string>
 
 #include "abshandler.h"
+#include "log.h"
 
-namespace connection{
-
-    namespace handler{
-
-        class JavaHandler : public AbsHandler {
-        private:
-            unsigned char* execute_java(const std::string& class_file_path,
-                    const std::string& class_name,
-                    const std::string& method_name,
-                    unsigned char* pkt,
-                    std::size_t pkt_size) const;
-        public:
-            JavaHandler(const std::string& config_path);
-            void handler_request(unsigned char* message, std::size_t size) const;
-        };
-    } // namespace handler
+namespace connection {
+namespace handler {
+class JavaHandler : public AbsHandler {
+private:
+    JavaVMInitArgs vm_args;
+    jclass cls2;
+    jmethodID mid;
+    JavaVM *jvm;
+    uint8_t* execute_java(const std::string&,
+            const std::string&,
+            const std::string&,
+            unsigned char*,
+            std::size_t);
+public:
+    JavaHandler(const std::string&);
+    void handler_request(unsigned char*, std::size_t);
+    ~JavaHandler();
+};
+} // namespace handler
 } // namespace connection
 
 #endif

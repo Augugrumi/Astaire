@@ -13,6 +13,7 @@
 #include "log.h"
 #include "asynctaskexecutor.h"
 #include "config.h"
+#include "handler/abshandler.h"
 
 // FIXME for test purpose only
 #include <chrono>
@@ -20,11 +21,13 @@
 #include <iostream>
 // END FIXME
 
+//#include "handler/abshandler.h"
+
 namespace connection {
 class RawSocketUDPConnectionManager : public UDPConnectionManager
 {
 public:
-    RawSocketUDPConnectionManager(uint32_t, unsigned short int);
+    RawSocketUDPConnectionManager(uint32_t, unsigned short int, handler::AbsHandler*);
     ~RawSocketUDPConnectionManager();
 
     void run();
@@ -44,6 +47,7 @@ private:
     struct sockaddr_in addr;
     socklen_t addrlen;
     char* buf;
+    handler::AbsHandler* handler;
     static std::atomic_int_fast64_t ct;
 
 };

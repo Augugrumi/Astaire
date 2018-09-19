@@ -7,11 +7,12 @@
 //#include "connection/tcpconnectionmanager.h"
 //#include "connection/boostudpconnectionmanager.h"
 #include "connection/rawsocketudpconnectionmanager.h"
-//#include "connection/handler/helloworldhandler.h"
+#include "connection/handler/handlercreator.h"
+#include "connection/handler/abshandler.h"
 #include "utils/log.h"
 
-int main()
-{
+
+int main(int argc, char* argv[]) {
 #if DEBUG_BUILD
     utils::Log::instance()->set_log_level(utils::Log::Level::trace);
 #endif
@@ -36,8 +37,25 @@ int main()
     /*boost::asio::io_service service;
     connection::BoostUDPConnectionManager conn(service, 8767);*/
 
+    std::string path = utils::JsonUtils::DEFAULT_CONFIG_PATH;
 
-    connection::RawSocketUDPConnectionManager conn(INADDR_ANY, 8767);
+    int c ;
+    opterr = 0;
+    while ((c = getopt(argc, (char **)argv, "c:")) != -1) {
+        switch(c) {
+            case 'c':
+                if(optarg) {
+                    path = optarg;
+                }
+                break;
+        }
+    }
+
+    connection::handler::AbsHandler* handler =
+            connection::handler::HandlerCreator::getHandlerByLanguageName(
+                    utils::JsonUtils::JsonWrapper(path).getField(utils::JsonUtils::LAUNGUAGE), path);
+
+    connection::RawSocketUDPConnectionManager conn(INADDR_ANY, 8767, handler);
     signal(SIGINT, connection::RawSocketUDPConnectionManager::counter_printer);
 
     conn.run();

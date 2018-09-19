@@ -17,7 +17,7 @@ namespace connection{
             utils::JsonUtils::JsonWrapper* config;
         public:
             AbsHandler(const std::string& config_path);
-            virtual void handler_request(unsigned char* message, std::size_t size) const =0;
+            virtual void handler_request(unsigned char*, std::size_t)  = 0;
             virtual ~AbsHandler();
         };
 
