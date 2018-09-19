@@ -84,11 +84,7 @@ void RawSocketUDPConnectionManager::run() {
                         unsigned  char* ubuffer = reinterpret_cast<unsigned char*>(buffer);
                         this->handler->handler_request(ubuffer, sizeof(ubuffer));
 
-                        LOG(linfo, "-- Buffer --");
-                        LOG(linfo, buffer);
-                        LOG(linfo, "-- End buf--");
-
-                        std::cout<<ct<<std::endl;
+                        LOG(ltrace, "Packet count: " + std::to_string(ct));
                         ct++;
 
                         send(reinterpret_cast<char*>(ubuffer), static_cast<size_t>(i), "localhost", 8768);

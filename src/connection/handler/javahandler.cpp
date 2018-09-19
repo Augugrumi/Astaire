@@ -32,7 +32,7 @@ JavaHandler::JavaHandler(const std::string &config_file)
     vm_args.ignoreUnrecognized = false;
 
     // load JVM and JNI
-    jint rc = JNI_CreateJavaVM(&jvm, (void **) &env, &vm_args);
+    jint rc = JNI_CreateJavaVM(&jvm, reinterpret_cast<void **>(&env), &vm_args);
 
     if (rc != JNI_OK) {
         LOG(lfatal, "Failure creating the Java VM");
@@ -68,9 +68,6 @@ unsigned char* JavaHandler::execute_java(const std::string& class_file_path,
 
     uint8_t *new_pkt;
     JNIEnv* env;
-    std::cout << "1" << std::endl;
-    if (jvm == nullptr)
-        std::cout << "jvm null" << std::endl;
     JavaVMOption *options = new JavaVMOption[1];
     //setting where to find the java class file
 
@@ -87,18 +84,12 @@ unsigned char* JavaHandler::execute_java(const std::string& class_file_path,
 
     jvm->AttachCurrentThreadAsDaemon((void**)&env, nullptr);
 
-    std::cout << "2" << std::endl;
-
     jbyteArray ret = env->NewByteArray(pkt_size);
-    std::cout << "3" << std::endl;
     env->SetByteArrayRegion(ret, 0, pkt_size, (const jbyte *) pkt);
-    std::cout << "4" << std::endl;
     jclass cls2 = env->FindClass(const_cast<char *>(class_name.c_str()));
-    std::cout << "5" << std::endl;
     jmethodID mid = env->GetStaticMethodID(
                 cls2,
                 const_cast<char *>(method_name.c_str()), "([B)[B");
-    std::cout << "6" << std::endl;
     jbyteArray jpkt = (jbyteArray)(env->CallStaticObjectMethod(cls2, mid, ret));
     if (env->ExceptionOccurred()) {
         // exception on method execution occurred
@@ -123,9 +114,6 @@ unsigned char* JavaHandler::execute_java(const std::string& class_file_path,
         uint8_t new_pkt[jlen];
         for (int i = 0; i < jlen; i++) {
             new_pkt[i] = (uint8_t) jbody[i];
-        }
-        for (int i = 0; i < jlen; i++) {
-            std::cout << new_pkt[i] << std::endl;
         }
         delete jbody;
     }
