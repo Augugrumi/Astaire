@@ -97,7 +97,7 @@ else()
 endif()
 
 
-find_package(jsoncpp REQUIRED)
+pkg_check_modules(LIBJSONCPP REQUIRED jsoncpp>=1.7.2)
 execute_process (
         COMMAND bash -c "cat /etc/os-release | grep ID= | head -n1 | cut -d\"=\" -f2 | tr -d '[:space:]'"
         OUTPUT_VARIABLE distro_name
