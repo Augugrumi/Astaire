@@ -1,5 +1,8 @@
 #include "tcpconnectionmanager.h"
 
+#include "config.h"
+#if HAS_TCP
+
 namespace  connection {
 TCPConnectionManager::TCPConnectionManager(
         const Pistache::Address& address,
@@ -29,3 +32,4 @@ void TCPConnectionManager::send(const char* message) {
 }
 }
 
+#endif

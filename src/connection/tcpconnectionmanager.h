@@ -1,6 +1,9 @@
 #ifndef TCPCONNECTIONMANAGER_H
 #define TCPCONNECTIONMANAGER_H
 
+#include "config.h"
+#if HAS_TCP
+
 #include <memory>
 #include <pistache/endpoint.h>
 #include <pistache/router.h>
@@ -31,5 +34,5 @@ private:
     const std::unique_ptr<const PReq::Router> router;
 };
 }
-
+#endif
 #endif // TCPCONNECTIONMANAGER_H

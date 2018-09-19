@@ -1,6 +1,9 @@
 #ifndef RAWSOCKETUDPCONNECTIONMANAGER_H
 #define RAWSOCKETUDPCONNECTIONMANAGER_H
 
+#include "config.h"
+#if HAS_UDP
+
 #include <poll.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -12,7 +15,6 @@
 #include "udpconnectionmanager.h"
 #include "log.h"
 #include "asynctaskexecutor.h"
-#include "config.h"
 #include "handler/abshandler.h"
 
 // FIXME for test purpose only
@@ -53,5 +55,5 @@ private:
 };
 }
 
-
+#endif
 #endif // RAWSOCKETUDPCONNECTIONMANAGER_H

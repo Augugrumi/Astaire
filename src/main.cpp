@@ -1,15 +1,21 @@
-/*#include <pistache/endpoint.h>
 #include <pistache/router.h>
 #include <boost/asio.hpp>
-#include <functional>*/
 #include <csignal>
 
-//#include "connection/tcpconnectionmanager.h"
-//#include "connection/boostudpconnectionmanager.h"
-#include "connection/rawsocketudpconnectionmanager.h"
 #include "connection/handler/handlercreator.h"
 #include "connection/handler/abshandler.h"
 #include "utils/log.h"
+#include "log.h"
+#if HAS_TCP
+/*#include <pistache/endpoint.h>
+#include <functional>*/
+//#include "connection/tcpconnectionmanager.h"
+//#include "connection/boostudpconnectionmanager.h"
+#endif
+#if HAS_UDP
+#include "connection/rawsocketudpconnectionmanager.h"
+#endif
+
 
 int main(int argc, char* argv[])
 {

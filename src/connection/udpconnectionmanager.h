@@ -1,6 +1,9 @@
 #ifndef UDPCONNECTIONMANAGER_H
 #define UDPCONNECTIONMANAGER_H
 
+#include "config.h"
+#if HAS_UDP
+
 #include <cstdint>
 #include <netinet/in.h>
 
@@ -21,5 +24,5 @@ private:
 };
 }
 
-
+#endif
 #endif // UDPCONNECTIONMANAGER_H

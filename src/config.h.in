@@ -9,6 +9,8 @@
 
 #cmakedefine01 HAS_BOOST_THREAD
 #cmakedefine01 HAS_JNI
+#cmakedefine01 HAS_TCP
+#cmakedefine01 HAS_UDP
 #cmakedefine01 JSONCPP_INCLUDE_PATH_FIX
 
 #endif // CONFIG_H_IN

@@ -1,5 +1,7 @@
 #include "rawsocketudpconnectionmanager.h"
 
+#include "config.h"
+#if HAS_UDP
 
 namespace connection {
 
@@ -224,3 +226,4 @@ void RawSocketUDPConnectionManager::counter_printer(int i) {
     exit(0);
 }
 }
+#endif

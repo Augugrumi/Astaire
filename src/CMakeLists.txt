@@ -14,8 +14,7 @@ add_executable(${PROJECT_NAME}
     "connection/handler/abshandler.cpp"
     "utils/jsonutils.cpp"
     "connection/handler/handlercreator.cpp"
-    "connection/handler/printerhandler.cpp"
-    "connection/handler/printerhandler.h")
+    "connection/handler/printerhandler.cpp")
 
 
 
@@ -38,15 +37,25 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/co
 # Optional compilation flags
 option(BOOST_THREAD "For boost thread pool support" ON)
 option(JNI "For Java VNF hook implementations" ON)
+option(UDP "For UDP support" ON)
+option(TCP "For TCP support" ON)
 
+set(HAS_UDP ${UDP})
+set(HAS_TCP ${TCP})
+# Set buffer limit for UDP Connections
+set(BUFFER_SIZE 65536) # Buffer when receiving packets
+set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
+
+if (NOT TCP AND NOT UDP)
+    message(FATAL_ERROR "You must have at least one between TCP or UDP enabled")
+endif()
+
+if (TCP)
 # Search for libpistache
 pkg_check_modules(LIBPISTACHE REQUIRED libpistache)
 target_include_directories(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_LIBRARIES})
-
-# Set buffer limit for UDP Connections
-set(BUFFER_SIZE 65536) # Buffer when receiving packets
-set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
+endif()
 
 # If enabled, search and use boost threads
 if (BOOST_THREAD)
