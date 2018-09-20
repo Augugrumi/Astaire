@@ -79,14 +79,12 @@ find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE "-pthread")
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LOG_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} PRIVATE "-lboost_thread")
+target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
 
 # Boost core is needed
 find_package(Boost 1.58 COMPONENTS system REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LOG_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} PRIVATE "-lboost_system")
+target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
 
 # Search for JNI integration
 if (JNI)
@@ -108,11 +106,11 @@ endif()
 
 pkg_check_modules(LIBJSONCPP REQUIRED jsoncpp>=1.7.2)
 execute_process (
-        COMMAND bash -c "cat /etc/os-release | grep ID= | head -n1 | cut -d\"=\" -f2 | tr -d '[:space:]'"
+        COMMAND sh -c "cat /etc/os-release | grep ID_LIKE= | head -n1 | cut -d\"=\" -f2 | tr -d '[:space:]'"
         OUTPUT_VARIABLE distro_name
 )
 message(STATUS "Checking for distro in use... ${distro_name}")
-if (${distro_name} STREQUAL "ubuntu")
+if (${distro_name} STREQUAL "debian")
     set(JSONCPP_INCLUDE_PATH_FIX TRUE)
     message(STATUS "Fixing path for jsoncpp on Ubuntu")
 else()
