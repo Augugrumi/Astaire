@@ -110,7 +110,7 @@ execute_process (
         OUTPUT_VARIABLE distro_name
 )
 message(STATUS "Checking for distro in use... ${distro_name}")
-if (${distro_name} STREQUAL "debian")
+if (${distro_name} MATCHES debian)
     set(JSONCPP_INCLUDE_PATH_FIX TRUE)
     message(STATUS "Fixing path for jsoncpp on Ubuntu")
 else()
