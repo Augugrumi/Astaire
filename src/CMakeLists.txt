@@ -115,7 +115,7 @@ execute_process (
 message(STATUS "Checking for distro in use... ${distro_name}")
 if (${distro_name} MATCHES debian)
     set(JSONCPP_INCLUDE_PATH_FIX TRUE)
-    message(STATUS "Fixing path for jsoncpp on Ubuntu")
+    message(STATUS "Fixing path for jsoncpp on debian based distro")
 else()
     set(JSONCPP_INCLUDE_PATH_FIX FALSE)
 endif()
