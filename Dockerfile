@@ -8,21 +8,19 @@ FROM alpine:3.8
 
 LABEL maintainer="poloniodavide@gmail.com"
 
-COPY --from=builder /build/build/ /tmpbuild/
-
 RUN apk --update --no-cache add \
-    openjdk-8-jdk \
-    libjsoncpp \
+    openjdk8 \
+    jsoncpp \
     boost-system \
-    boost-thread && \
-    apk --update --no-cache --virtual add \
-    make && \
-    cd /tmpbuild/ && \
-    make install/strip && \
-    cd - && \
-    rm -Rf /tmpbuild/
+    boost-thread
 
 RUN mkdir -p /data/
 VOLUME /data/
+
+EXPOSE 8767
+EXPOSE 8767/udp
+
+# FIXME this will broke one day
+COPY --from=builder /build/build/src/astaire /usr/bin/astaire
 
 ENTRYPOINT ["astaire"]
