@@ -9,7 +9,7 @@ RUN apk update && \
     wget \
     git \
     boost-dev && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/cache/apk/*
 
 ENV JAVA_HOME /usr/lib/jvm/default-jvm
 
