@@ -90,14 +90,15 @@ void RawSocketUDPConnectionManager::run() {
 
                 if (i > 0) {
                     LOG(ltrace, "Data received from recvfrom()");
-                    auto packet_printer = [&i, this] (msgptr buffer) {
+                    auto packet_printer = [i, this] (msgptr buffer) {
                         buffer = handler->
-                            handler_request(buffer, sizeof(buffer.get()));
+                            handler_request(buffer, static_cast<size_t>(i));
 
                         LOG(ltrace, "Packet count: " + std::to_string(ct));
                         ct++;
 
                         send(reinterpret_cast<char*>(buffer.get()),
+                             // FIXME the handle could change the packet size!
                              static_cast<size_t>(i),
                              forward_address.c_str(),
                              forward_port);
@@ -107,7 +108,8 @@ void RawSocketUDPConnectionManager::run() {
                             reinterpret_cast<uint8_t*>(buf));
                     buf = new char[BUFFER_SIZE];
 
-                    send(pollfd.fd, "ACK", static_cast<size_t>(i), &client);
+                    std::string ack = "ACK";
+                    send(pollfd.fd, ack.c_str(), ack.size(), &client);
                     ASYNC_TASK(std::bind<void>(packet_printer, cloned_buffer));
                 } else if (errno != 0) {
                     LOG(lfatal, "Errno: " + std::to_string(errno));
