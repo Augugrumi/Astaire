@@ -1,7 +1,7 @@
 FROM augugrumi/astaire-dockerbuilds:alpine as builder
 WORKDIR /tmpbuilding/
 COPY . .
-RUN builder -DCMAKE_BUILD_TYPE=Release -DJNI=True -DTCP=True -DUDP=True
+RUN builder -DCMAKE_BUILD_TYPE=Release -DJNI=True -DTCP=False -DUDP=True
 
 FROM alpine:3.8
 LABEL maintainer="poloniodavide@gmail.com"
