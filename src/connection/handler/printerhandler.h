@@ -6,7 +6,7 @@
 #define ASTAIRE_PRINTERHANDLER_H
 
 #include <iostream>
-
+#include "rawsocketudpconnectionmanager.h"
 #include "abshandler.h"
 
 namespace connection{
