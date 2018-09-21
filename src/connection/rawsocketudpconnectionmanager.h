@@ -47,18 +47,18 @@ public:
 
     static void counter_printer(int);
 
+    static std::atomic_int_fast64_t ct;
 private:
     struct pollfd pollfd;
     struct sockaddr_in addr;
     std::string forward_address;
-    unsigned short int forward_port;
 
+    unsigned short int forward_port;
     socklen_t addrlen;
     char* buf;
     std::shared_ptr<handler::AbsHandler> handler;
-    std::atomic_bool run_flag;
 
-    static std::atomic_int_fast64_t ct;
+    std::atomic_bool run_flag;
 
 };
 }
