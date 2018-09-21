@@ -67,10 +67,12 @@ int main(int argc, char* argv[])
                 if(optarg) {
                     path = optarg;
                 }
+                LOG(linfo, "Reading configuration file from " + path);
                 break;
             case 'u':
 #if HAS_UDP
                 udp_flag = 1;
+                LOG(linfo, "Set UDP server");
                 break;
 #else
                 LOG(lfatal, "Astaire was not compile with UDP support");
@@ -80,6 +82,7 @@ int main(int argc, char* argv[])
             case 't':
 #if HAS_TCP
                 tcp_flag = 1;
+                LOG(linfo, "Set TCP server");
                 break;
 #else
                 LOG(lfatal, "Astaire was not compile with TCP support");
@@ -90,18 +93,24 @@ int main(int argc, char* argv[])
                 if(optarg) {
                     listen_port = atoi(optarg);
                 }
+                LOG(linfo, "Listening on port: " +
+                    std::to_string(htons(listen_port)));
                 break;
 
             case 'i':
                 if(optarg) {
                     forward_address = optarg;
                 }
+                LOG(linfo, "Setting forward address to " +
+                    forward_address);
                 break;
 
             case 'f':
                 if(optarg) {
                     forward_port = atoi(optarg);
                 }
+                LOG(linfo, "Set forward port to: " +
+                    std::to_string(htons(forward_port)));
                 break;
 
             case 'h':
