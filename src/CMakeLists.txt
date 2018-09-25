@@ -14,7 +14,8 @@ add_executable(${PROJECT_NAME}
     "connection/handler/abshandler.cpp"
     "utils/jsonutils.cpp"
     "connection/handler/handlercreator.cpp"
-    "connection/handler/printerhandler.cpp")
+    "connection/handler/printerhandler.cpp"
+    "utils/parser/metadataparser.cpp")
 
 
 
@@ -45,6 +46,9 @@ set(HAS_TCP ${TCP})
 # Set buffer limit for UDP Connections
 set(BUFFER_SIZE 65536) # Buffer when receiving packets
 set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
+
+# Metadata flags
+set(METADATA_FLAG 0x01)
 
 if (NOT TCP AND NOT UDP)
     message(FATAL_ERROR "You must have at least one between TCP or UDP enabled")
