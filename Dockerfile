@@ -20,5 +20,6 @@ EXPOSE 8767/udp
 
 # FIXME this will broke one day
 COPY --from=builder /tmpbuilding/build/src/astaire /usr/bin/astaire
+COPY ./docker/bootstrap.sh /usr/bin/bootstrap
 
-ENTRYPOINT ["astaire"]
+ENTRYPOINT ["bootstrap"]
