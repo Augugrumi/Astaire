@@ -1,6 +1,6 @@
 #include "metadataparser.h"
 
-MetadataParser::MetadataParser(const char* bytearray) noexcept {
+MetadataParser::MetadataParser(const char* byte_array) noexcept {
 
     // FIXME: find correct way to calculate the length!
     unsigned int metadata_length = 42;/*strlen(METADATA_FLAG);*/
