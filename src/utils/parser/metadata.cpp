@@ -13,7 +13,7 @@ Metadata::Metadata(const unsigned char* byte_array) noexcept {
     char* circolar_buffer = new char[metadata_length];
 
     // TODO byte parsing. When parsed the metadata, convert it into char and
-    // save it in sf_id and sfc_id.
+    // save it in sf_id and sfc_id, and save the header in metadata.
 
     delete[] circolar_buffer;
 }
@@ -28,6 +28,10 @@ std::string Metadata::get_sf_id() {
 
 std::string Metadata::get_sfc_id() {
     return sfc_id;
+}
+
+std::string Metadata::get_header() {
+    return header;
 }
 
 } // namespace parser

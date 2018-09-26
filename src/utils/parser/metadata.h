@@ -17,10 +17,12 @@ public:
 
     std::string get_sfc_id();
     std::string get_sf_id();
+    std::string get_header();
 
 private:
     std::string sf_id;
     std::string sfc_id;
+    std::string header;
 };
 } // namespace parser
 
