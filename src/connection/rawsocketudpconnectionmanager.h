@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <cstring>
+#include <cstdlib>
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
@@ -18,6 +19,8 @@
 #include "log.h"
 #include "asynctaskexecutor.h"
 #include "handler/abshandler.h"
+#include "parser/metadata.h"
+#include "stringutils.h"
 
 namespace connection {
 class RawSocketUDPConnectionManager : public UDPConnectionManager

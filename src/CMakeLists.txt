@@ -15,7 +15,8 @@ add_executable(${PROJECT_NAME}
     "utils/jsonutils.cpp"
     "connection/handler/handlercreator.cpp"
     "connection/handler/printerhandler.cpp"
-    "utils/parser/metadata.cpp")
+    "utils/parser/metadata.cpp"
+    "utils/stringutils.cpp")
 
 
 

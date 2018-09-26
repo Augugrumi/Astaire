@@ -13,11 +13,14 @@ namespace parser {
 class Metadata {
 public:
     Metadata(const unsigned char*) noexcept;
+    Metadata(std::shared_ptr<unsigned char>) noexcept;
 
-    std::string get();
+    std::string get_sfc_id();
+    std::string get_sf_id();
 
 private:
-    std::string metadata;
+    std::string sf_id;
+    std::string sfc_id;
 };
 } // namespace parser
 

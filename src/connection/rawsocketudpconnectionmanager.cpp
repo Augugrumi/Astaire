@@ -91,17 +91,54 @@ void RawSocketUDPConnectionManager::run() {
                 if (i > 0) {
                     LOG(ltrace, "Data received from recvfrom()");
                     auto packet_printer = [i, this] (msgptr buffer) {
+
+                        /* The packet has arrived and it needs to be processed.
+                         * An incoming packet is composed as follows:
+                         * +--------------------------------------------------+
+                         * + UDP standard headers                             +
+                         * +--------------------------------------------------+
+                         * + Astaire metadata (delimited with a flag defined  +
+                         * + in METADATA_FLAG). Astaire metadata are composed +
+                         * + as follows:                                      +
+                         * + - SFC id                                         +
+                         * + - current SF id                                  +
+                         * +--------------------------------------------------+
+                         * + The real data payload, to pass to the handler    +
+                         * +--------------------------------------------------+
+                         *
+                         * Computation follows these steps:
+                         * - Astaire metadata gets extracted and the next hop
+                         *   gets indentified
+                         * - The data payload (without astaire metadata) gets
+                         *   processed by the handler
+                         * - The returning data + the astaire metadata - the
+                         *   next address hop get forwarded to the next hop.
+                         */
+
+                        // Getting metadata
+                        utils::parser::Metadata pkt_meta =
+                                utils::parser::Metadata(buffer);
+
+                        // TODO Now we need to make a request to obtain the next
+                        // hop address
+
+
+                        // Calling the handler
                         buffer = handler->
                             handler_request(buffer, static_cast<size_t>(i));
 
                         LOG(ltrace, "Packet count: " + std::to_string(ct));
                         ct++;
 
+                        // Recomposing the payload
+
+                        // Forwarding the data
                         send(reinterpret_cast<char*>(buffer.get()),
                              // FIXME the handle could change the packet size!
                              static_cast<size_t>(i),
+                             // FIXME change with sender address
                              forward_address.c_str(),
-                             forward_port);
+                             forward_port); // FIXME change with sender port
                     };
 
                     msgptr cloned_buffer = msgptr(
