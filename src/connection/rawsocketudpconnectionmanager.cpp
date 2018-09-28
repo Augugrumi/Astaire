@@ -108,37 +108,51 @@ void RawSocketUDPConnectionManager::run() {
                          *
                          * Computation follows these steps:
                          * - Astaire metadata gets extracted and the next hop
-                         *   gets indentified
+                         *   gets identified
                          * - The data payload (without astaire metadata) gets
                          *   processed by the handler
                          * - The returning data + the astaire metadata - the
                          *   next address hop get forwarded to the next hop.
                          */
 
-                        // Getting metadata
-                        utils::parser::Metadata pkt_meta =
-                                utils::parser::Metadata(buffer);
+                        utils::sfc_header::SFCFixedLengthHeader header(buffer);
 
                         // TODO Now we need to make a request to obtain the next
                         // hop address
 
 
                         // Calling the handler
+                        msgptr payload;
+                        sfcu::SFCUtilities::retrieve_payload(buffer.get(),
+                                static_cast<size_t>(i -
+                                sfcu::SFCUtilities::HEADER_SIZE),
+                                payload.get());
+
                         buffer = handler->
-                            handler_request(buffer, static_cast<size_t>(i));
+                            handler_request(payload,
+                                    static_cast<size_t>(i -
+                                    sfcu::SFCUtilities::HEADER_SIZE));
 
                         LOG(ltrace, "Packet count: " + std::to_string(ct));
                         ct++;
 
-                        // Recomposing the payload
 
-                        // Forwarding the data
-                        send(reinterpret_cast<char*>(buffer.get()),
-                             // FIXME the handle could change the packet size!
-                             static_cast<size_t>(i),
-                             // FIXME change with sender address
-                             forward_address.c_str(),
-                             forward_port); // FIXME change with sender port
+                        // Recomposing the payload
+                        if (header.get_ttl() > 0) {
+                            header.set_ttl(header.get_ttl() - 1);
+
+                            // Forwarding the data
+                            uint8_t* new_pkt;
+                            sfcu::SFCUtilities::prepend_header(buffer.get(),
+                                    i - sfcu::SFCUtilities::HEADER_SIZE,
+                                    header.get_header(), new_pkt);
+                            send(reinterpret_cast<char*>(new_pkt),
+                                 // FIXME the handle could change the packet size!
+                                 static_cast<size_t>(i),
+                                 // FIXME change with sender address
+                                 forward_address.c_str(),
+                                 forward_port); // FIXME change with sender port
+                        }
                     };
 
                     msgptr cloned_buffer = msgptr(

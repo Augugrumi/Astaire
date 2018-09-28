@@ -15,8 +15,8 @@ add_executable(${PROJECT_NAME}
     "utils/jsonutils.cpp"
     "connection/handler/handlercreator.cpp"
     "connection/handler/printerhandler.cpp"
-    "utils/parser/metadata.cpp"
-    "utils/stringutils.cpp")
+    "utils/sfcheader/sfcfixedlengthheader.cpp"
+    "utils/stringutils.cpp" utils/sfcheader/sfcheaderstruct.h utils/sfcheader/sfcutilities.cpp utils/sfcheader/sfcutilities.h)
 
 
 
@@ -48,7 +48,7 @@ set(HAS_TCP ${TCP})
 set(BUFFER_SIZE 65536) # Buffer when receiving packets
 set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
 
-# Metadata flags
+# SFCFixedLengthHeader flags
 set(METADATA_FLAG 0x01)
 
 if (NOT TCP AND NOT UDP)

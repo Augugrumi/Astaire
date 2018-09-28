@@ -19,8 +19,11 @@
 #include "log.h"
 #include "asynctaskexecutor.h"
 #include "handler/abshandler.h"
-#include "parser/metadata.h"
 #include "stringutils.h"
+#include "sfcheader/sfcfixedlengthheader.h"
+#include "sfcheader/sfcutilities.h"
+
+namespace sfcu = utils::sfc_header;
 
 namespace connection {
 class RawSocketUDPConnectionManager : public UDPConnectionManager
