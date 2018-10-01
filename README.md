@@ -8,7 +8,7 @@ You need CMake to build this program. In the root of the repository:
 ```
 mkdir build/;
 cd build;
-cmake -DCMAKE_BUILD_TYPE=[Debug|Release] -DJNI=[True|False] -DTCP=[True|False] -DUDP=[True|False];
+cmake -DCMAKE_BUILD_TYPE=[Debug|Release] -DJNI=[True|False] -DTCP=[True|False] -DUDP=[True|False] ..;
 make;
 ```
 
