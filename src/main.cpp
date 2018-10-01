@@ -153,7 +153,9 @@ int main(int argc, char* argv[])
         LOG(linfo, "Opening TCP server");
 
         Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
-        auto opts = Pistache::Http::Endpoint::options().threads(1);
+        auto opts = Pistache::Http::Endpoint::options()
+                .threads(1)
+                .maxPayload(BUFFER_SIZE);
         Pistache::Http::Endpoint server(addr);
 
         ch::HelloWorldHandler* test = new ch::HelloWorldHandler();

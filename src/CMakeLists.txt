@@ -16,7 +16,9 @@ add_executable(${PROJECT_NAME}
     "connection/handler/handlercreator.cpp"
     "connection/handler/printerhandler.cpp"
     "utils/sfcheader/sfcfixedlengthheader.cpp"
-    "utils/stringutils.cpp" utils/sfcheader/sfcheaderstruct.h utils/sfcheader/sfcutilities.cpp utils/sfcheader/sfcutilities.h)
+    "utils/stringutils.cpp"
+    "utils/sfcheader/sfcheaderstruct.h"
+    "utils/sfcheader/sfcutilities.cpp")
 
 
 
