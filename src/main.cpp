@@ -1,5 +1,6 @@
-#include <csignal>
+#include <thread>
 
+#include <csignal>
 #include "connection/handler/handlercreator.h"
 #include "connection/handler/abshandler.h"
 #include "utils/log.h"
@@ -51,14 +52,10 @@ int main(int argc, char* argv[])
     unsigned short int listen_port = 8767;
     unsigned short int forward_port = 8768;
     std::string forward_address = "localhost";
-#if (HAS_UDP and HAS_TCP)
+
     u_int8_t udp_flag = 0;
     u_int8_t tcp_flag = 0;
-#elif HAS_UDP
-    u_int8_t udp_flag = 1;
-#elif HAS_TCP
-    u_int8_t tcp_flag = 1;
-#endif
+
     int c;
     opterr = 0;
     while ((c = getopt(argc, (char **)argv, "c:uthl:i:f:")) != -1) {
@@ -120,15 +117,13 @@ int main(int argc, char* argv[])
     }
 
 #if (HAS_UDP and HAS_TCP)
-    if (udp_flag & tcp_flag) {
-        LOG(lfatal, "Cannot set connection manager both to tcp and udp");
-        usage();
-        exit(EXIT_FAILURE);
-    } else if (!(udp_flag | tcp_flag)) {
+    // madre perdona pur me vida loca
+    if (!(udp_flag | tcp_flag)) {
         udp_flag = 1;
     }
 #endif
 #if HAS_UDP
+    std::thread* t_udp;
     if (udp_flag) {
         LOG(linfo, "Opening UDP server");
 
@@ -145,11 +140,14 @@ int main(int argc, char* argv[])
                                                        handler);
         signal(SIGINT,
                connection::RawSocketUDPConnectionManager::counter_printer);
-
-        conn.run();
+        if (tcp_flag)
+            t_udp = new std::thread([&](connection::RawSocketUDPConnectionManager* conn){conn->run();}, &conn);
+        else
+            conn.run();
     }
 #endif
 #if HAS_TCP
+    std::thread* t_tcp;
     if (tcp_flag) {
 
         LOG(linfo, "Opening TCP server");
@@ -167,9 +165,17 @@ int main(int argc, char* argv[])
         Pistache::Rest::Routes::Post(router, "/hello", bind);
 
         connection::TCPConnectionManager conn(addr, router, opts);
-
-        conn.run();
+        if (udp_flag)
+            t_tcp = new std::thread([&](connection::TCPConnectionManager* conn){conn->run();}, &conn);
+        else
+            conn.run();
     }
+#endif
+#if HAS_UDP
+    t_udp->join();
+#endif
+#if HAS_TCP
+    t_tcp->join();
 #endif
     return 0;
 }
