@@ -7,6 +7,74 @@ namespace connection {
 
 std::atomic_int_fast64_t RawSocketUDPConnectionManager::ct(0);
 
+void RawSocketUDPConnectionManager::pkt_mngmt(ssize_t i, msgptr buffer) {
+    /* The packet has arrived and it needs to be processed.
+     * An incoming packet is composed as follows:
+     * +--------------------------------------------------+
+     * + UDP standard headers                             +
+     * +--------------------------------------------------+
+     * + Astaire metadata (delimited with a flag defined  +
+     * + in METADATA_FLAG). Astaire metadata are composed +
+     * + as follows:                                      +
+     * + - SFC id                                         +
+     * + - current SF id                                  +
+     * +--------------------------------------------------+
+     * + The real data payload, to pass to the handler    +
+     * +--------------------------------------------------+
+     *
+     * Computation follows these steps:
+     * - Astaire metadata gets extracted and the next hop
+     *   gets identified
+     * - The data payload (without astaire metadata) gets
+     *   processed by the handler
+     * - The returning data + the astaire metadata - the
+     *   next address hop get forwarded to the next hop.
+     */
+
+    utils::sfc_header::SFCFixedLengthHeader header(buffer);
+
+    // TODO Now we need to make a request to obtain the next
+    // hop address
+
+
+    // Calling the handler
+    unsigned char* payload_ptr;
+    sfcu::SFCUtilities::retrieve_payload(buffer.get(),
+         static_cast<size_t>(i -sfcu::SFCUtilities::HEADER_SIZE),
+         payload_ptr);
+
+    LOG(linfo, header.get_destination_ip_address());
+    msgptr payload(payload_ptr);
+    buffer = handler->
+            handler_request(payload,
+                            static_cast<size_t>(i -
+                                                sfcu::SFCUtilities::HEADER_SIZE));
+
+    LOG(ltrace, "Packet count: " + std::to_string(ct));
+    ct++;
+
+    // Recomposing the payload
+    if (header.get_ttl() > 0) {
+        header.set_ttl(header.get_ttl() - 1);
+        // Forwarding the data
+        //auto new_pkt = new unsigned char[i];
+        unsigned char new_pkt[i];
+        unsigned char* new_pkt_ptr;
+        auto buffer_ptr = buffer.get();
+        sfcu::SFCUtilities::prepend_header(buffer_ptr,
+                                           i - sfcu::SFCUtilities::HEADER_SIZE,
+                                           header.get_header(), new_pkt_ptr);
+        // madre perdoname por mi vida loca
+        size_t iTotalElement = *(&new_pkt + 1) - new_pkt;
+        send(reinterpret_cast<char*>(new_pkt_ptr),
+                // TODO Always control if it is correct
+             iTotalElement,
+                // FIXME change with sender address
+             forward_address.c_str(),
+             forward_port); // FIXME change with sender port
+    }
+}
+
 RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(
         uint32_t to_listen,
         unsigned short int port,
@@ -90,75 +158,6 @@ void RawSocketUDPConnectionManager::run() {
 
                 if (i > 0) {
                     LOG(ltrace, "Data received from recvfrom()");
-                    auto packet_printer = [i, this] (msgptr buffer) {
-
-                        /* The packet has arrived and it needs to be processed.
-                         * An incoming packet is composed as follows:
-                         * +--------------------------------------------------+
-                         * + UDP standard headers                             +
-                         * +--------------------------------------------------+
-                         * + Astaire metadata (delimited with a flag defined  +
-                         * + in METADATA_FLAG). Astaire metadata are composed +
-                         * + as follows:                                      +
-                         * + - SFC id                                         +
-                         * + - current SF id                                  +
-                         * +--------------------------------------------------+
-                         * + The real data payload, to pass to the handler    +
-                         * +--------------------------------------------------+
-                         *
-                         * Computation follows these steps:
-                         * - Astaire metadata gets extracted and the next hop
-                         *   gets identified
-                         * - The data payload (without astaire metadata) gets
-                         *   processed by the handler
-                         * - The returning data + the astaire metadata - the
-                         *   next address hop get forwarded to the next hop.
-                         */
-
-                        utils::sfc_header::SFCFixedLengthHeader header(buffer);
-
-                        // TODO Now we need to make a request to obtain the next
-                        // hop address
-
-
-                        // Calling the handler
-                        unsigned char* payload_ptr;
-                        sfcu::SFCUtilities::retrieve_payload(buffer.get(),
-                                static_cast<size_t>(i -
-                                sfcu::SFCUtilities::HEADER_SIZE),
-                                payload_ptr);
-
-                        LOG(linfo, header.get_destination_ip_address());
-                        msgptr payload(payload_ptr);
-                        buffer = handler->
-                            handler_request(payload,
-                                    static_cast<size_t>(i -
-                                    sfcu::SFCUtilities::HEADER_SIZE));
-
-                        LOG(ltrace, "Packet count: " + std::to_string(ct));
-                        ct++;
-
-                        // Recomposing the payload
-                        if (header.get_ttl() > 0) {
-                            header.set_ttl(header.get_ttl() - 1);
-                            // Forwarding the data
-                            //auto new_pkt = new unsigned char[i];
-                            unsigned char new_pkt[i];
-                            unsigned char* new_pkt_ptr;
-                            auto buffer_ptr = buffer.get();
-                            sfcu::SFCUtilities::prepend_header(buffer_ptr,
-                                    i - sfcu::SFCUtilities::HEADER_SIZE,
-                                    header.get_header(), new_pkt_ptr);
-                            // madre perdoname por mi vida loca
-                            size_t iTotalElement = *(&new_pkt + 1) - new_pkt;
-                            send(reinterpret_cast<char*>(new_pkt_ptr),
-                                 // TODO Always control if it is correct
-                                 iTotalElement,
-                                 // FIXME change with sender address
-                                 forward_address.c_str(),
-                                 forward_port); // FIXME change with sender port
-                        }
-                    };
 
                     msgptr cloned_buffer = msgptr(
                             reinterpret_cast<uint8_t*>(buf));
@@ -166,7 +165,9 @@ void RawSocketUDPConnectionManager::run() {
 
                     std::string ack = "ACK";
                     send(pollfd.fd, ack.c_str(), ack.size(), &client);
-                    ASYNC_TASK(std::bind<void>(packet_printer, cloned_buffer));
+                    ASYNC_TASK(
+                        std::bind<void>(&RawSocketUDPConnectionManager::pkt_mngmt,
+                                        this, i, cloned_buffer));
                 } else if (errno != 0) {
                     LOG(lfatal, "Errno: " + std::to_string(errno));
                     LOG(lfatal, strerror(errno));

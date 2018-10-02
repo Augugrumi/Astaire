@@ -65,6 +65,8 @@ private:
     std::shared_ptr<handler::AbsHandler> handler;
 
     std::atomic_bool run_flag;
+
+    void pkt_mngmt(ssize_t, msgptr);
 };
 }
 
