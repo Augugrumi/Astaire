@@ -18,7 +18,9 @@ add_executable(${PROJECT_NAME}
     "utils/sfcheader/sfcfixedlengthheader.cpp"
     "utils/stringutils.cpp"
     "utils/sfcheader/sfcheaderstruct.h"
-    "utils/sfcheader/sfcutilities.cpp")
+    "utils/sfcheader/sfcutilities.cpp"
+    "address/address.cpp"
+    "address/addressresolver.cpp")
 
 
 
@@ -37,6 +39,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/utils")
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection")
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection/handler")
+target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/address")
 
 # Optional compilation flags
 option(BOOST_THREAD "For boost thread pool support" ON)
@@ -66,7 +69,7 @@ endif()
 
 # If enabled, search and use Boost threads
 if (BOOST_THREAD)
-    message(STATUS "Trying to use Boost Thread (if Boost version >= 1.66...)")
+    message(STATUS "Trying to use Boost Thread (if Boost version > 1.66...)")
     # We're going to log only with boost log
     find_package(Boost 1.66 COMPONENTS thread)
     if (Boost_FOUND)
@@ -92,6 +95,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
 find_package(Boost 1.58 COMPONENTS system REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
+
+# CUrl in needed
+find_package(CURL REQUIRED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CURL_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CURL_LIBRARIES})
+
 
 # Search for JNI integration
 if (JNI)

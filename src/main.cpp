@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 #endif
     LOG(linfo, "Astaire started");
 
-    std::string path = utils::JsonUtils::DEFAULT_CONFIG_PATH;
+    std::string path = utils::HandlerFields::DEFAULT_CONFIG_PATH;
     unsigned short int listen_port = 8767;
     unsigned short int forward_port = 8768;
     std::string forward_address = "localhost";
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
         handle_ptr handler (
                 ch::HandlerCreator::getHandlerByLanguageName(
                         utils::JsonUtils::JsonWrapper(path)
-                        .getField(utils::JsonUtils::LAUNGUAGE), path)
+                        .getField(utils::HandlerFields::LAUNGUAGE), path)
                     );
 
         auto conn = new connection::RawSocketUDPConnectionManager(INADDR_ANY,
