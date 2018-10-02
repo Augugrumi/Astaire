@@ -23,13 +23,13 @@ static const std::string ADDRESS="url";
 static const std::string PORT="port";
 static const std::string CONTENT="content";
 } // namespace addressFields
-namespace jniFields {
+namespace externHookFields {
 static const std::string DEFAULT_CONFIG_PATH="./conf.json";;
 static const std::string LAUNGUAGE="language";
 static const std::string FILE_PATH="file_path";
 static const std::string CLASS_NAME="class_name";
 static const std::string METHOD="method_name";
-} // namespace jniFields
+} // namespace externHookFields
 class JsonUtils {
 public:
     class JsonWrapper {

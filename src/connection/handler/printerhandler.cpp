@@ -6,7 +6,7 @@
 namespace connection{
 namespace handler {
 
-PrinterHandler::PrinterHandler() : AbsHandler(utils::jniFields::DEFAULT_CONFIG_PATH) {}
+PrinterHandler::PrinterHandler() : AbsHandler(utils::externHookFields::DEFAULT_CONFIG_PATH) {}
 
 msgptr PrinterHandler::handler_request(msgptr message, std::size_t size) {
 #if HAS_UDP
