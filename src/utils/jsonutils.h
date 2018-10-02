@@ -21,6 +21,7 @@ namespace utils {
 namespace addressFields {
 static const std::string ADDRESS="url";
 static const std::string PORT="port";
+static const std::string CONTENT="content";
 } // namespace addressFields
 namespace jniFields {
 static const std::string DEFAULT_CONFIG_PATH="./conf.json";;
@@ -37,6 +38,7 @@ public:
     public:
         JsonWrapper(const std::string&);
         std::string getField(const std::string&) const;
+        Json::Value getObj(const std::string&) const;
     };
 };
 

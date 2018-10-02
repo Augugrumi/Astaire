@@ -39,6 +39,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/utils")
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection")
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection/handler")
+target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/address")
 
 # Optional compilation flags
 option(BOOST_THREAD "For boost thread pool support" ON)
