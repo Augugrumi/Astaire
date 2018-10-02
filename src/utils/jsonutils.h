@@ -18,8 +18,13 @@
 #endif
 
 namespace utils{
+namespace addressFields {
+static const std::string ADDRESS="url";
+static const std::string PORT="port";
+} // namespace addressFields
 class JsonUtils {
 public:
+    // TODO Fix namespaces
     static const std::string DEFAULT_CONFIG_PATH;
     static const std::string LAUNGUAGE;
     static const std::string FILE_PATH;

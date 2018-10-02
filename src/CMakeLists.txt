@@ -18,7 +18,9 @@ add_executable(${PROJECT_NAME}
     "utils/sfcheader/sfcfixedlengthheader.cpp"
     "utils/stringutils.cpp"
     "utils/sfcheader/sfcheaderstruct.h"
-    "utils/sfcheader/sfcutilities.cpp")
+    "utils/sfcheader/sfcutilities.cpp"
+    "address/address.cpp"
+    "address/addressresolver.cpp")
 
 
 
@@ -92,6 +94,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
 find_package(Boost 1.58 COMPONENTS system REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
+
+# CUrl in needed
+find_package(CURL REQUIRED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CURL_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CURL_LIBRARIES})
+
 
 # Search for JNI integration
 if (JNI)
