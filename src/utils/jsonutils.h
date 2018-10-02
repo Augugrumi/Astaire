@@ -37,6 +37,7 @@ public:
         Json::Value obj;
     public:
         JsonWrapper(const std::string&);
+        JsonWrapper(const std::ifstream&);
         std::string getField(const std::string&) const;
         Json::Value getObj(const std::string&) const;
     };

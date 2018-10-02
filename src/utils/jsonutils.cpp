@@ -12,6 +12,11 @@ JsonUtils::JsonWrapper::JsonWrapper(const std::string& path) {
     reader.parse(path, this->obj);
 }
 
+JsonUtils::JsonWrapper::JsonWrapper(const std::ifstream& ifs) {
+    Json::Reader reader;
+    reader.parse(const_cast<std::ifstream&>(ifs), this->obj);
+}
+
 std::string JsonUtils::JsonWrapper::getField(const std::string& field_name) const {
     return obj[field_name].asString();
 }
