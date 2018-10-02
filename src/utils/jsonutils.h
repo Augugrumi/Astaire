@@ -17,20 +17,20 @@
 #include <json/json.h>
 #endif
 
-namespace utils{
+namespace utils {
 namespace addressFields {
 static const std::string ADDRESS="url";
 static const std::string PORT="port";
 } // namespace addressFields
+namespace jniFields {
+static const std::string DEFAULT_CONFIG_PATH="./conf.json";;
+static const std::string LAUNGUAGE="language";
+static const std::string FILE_PATH="file_path";
+static const std::string CLASS_NAME="class_name";
+static const std::string METHOD="method_name";
+} // namespace jniFields
 class JsonUtils {
 public:
-    // TODO Fix namespaces
-    static const std::string DEFAULT_CONFIG_PATH;
-    static const std::string LAUNGUAGE;
-    static const std::string FILE_PATH;
-    static const std::string CLASS_NAME;
-    static const std::string METHOD;
-
     class JsonWrapper {
     private:
         Json::Value obj;

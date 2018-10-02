@@ -10,9 +10,9 @@ namespace connection {
 namespace handler {
 JavaHandler::JavaHandler(const std::string &config_file)
     : AbsHandler(config_file) {
-    std::string class_file_path = config->getField(utils::JsonUtils::FILE_PATH);
-    std::string class_name = config->getField(utils::JsonUtils::CLASS_NAME);
-    std::string method_name = config->getField(utils::JsonUtils::METHOD);
+    std::string class_file_path = config->getField(utils::jniFields::FILE_PATH);
+    std::string class_name = config->getField(utils::jniFields::CLASS_NAME);
+    std::string method_name = config->getField(utils::jniFields::METHOD);
     // Pointer to the JVM (Java Virtual Machine)
     JNIEnv * env;
     // Pointer to native interface
@@ -128,9 +128,9 @@ std::shared_ptr<uint8_t> JavaHandler::execute_java(const std::string& class_file
 }
 
 std::shared_ptr<uint8_t> JavaHandler::handler_request(std::shared_ptr<uint8_t> message, std::size_t size) {
-    return execute_java(config->getField(utils::JsonUtils::FILE_PATH),
-                       config->getField(utils::JsonUtils::CLASS_NAME),
-                       config->getField(utils::JsonUtils::METHOD),
+    return execute_java(config->getField(utils::jniFields::FILE_PATH),
+                       config->getField(utils::jniFields::CLASS_NAME),
+                       config->getField(utils::jniFields::METHOD),
                        message, size);
 }
 
