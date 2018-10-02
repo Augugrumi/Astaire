@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
     t_udp->join();
 #endif
 #if HAS_TCP
-    //t_tcp->join();
+    t_tcp->join();
 #endif
     return 0;
 }
