@@ -30,12 +30,12 @@ namespace utils {
             );
 
             static void prepend_header(
-                    unsigned char* no_header_pkt, size_t pkt_size,
-                    struct sfc_header header, unsigned char* pkt_w_header);
+                    unsigned char*& no_header_pkt, size_t pkt_size,
+                    struct sfc_header header, unsigned char*& pkt_w_header);
 
             static struct sfc_header retrieve_header(uint8_t* packet);
             static void retrieve_payload(uint8_t* packet, size_t size,
-                                         uint8_t* payload);
+                                         uint8_t*& payload);
     };
 
     } // namespace sfcheader

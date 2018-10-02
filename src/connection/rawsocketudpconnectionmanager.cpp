@@ -122,12 +122,14 @@ void RawSocketUDPConnectionManager::run() {
 
 
                         // Calling the handler
-                        msgptr payload;
+                        unsigned char* payload_ptr;
                         sfcu::SFCUtilities::retrieve_payload(buffer.get(),
                                 static_cast<size_t>(i -
                                 sfcu::SFCUtilities::HEADER_SIZE),
-                                payload.get());
+                                payload_ptr);
 
+                        LOG(linfo, header.get_destination_ip_address());
+                        msgptr payload(payload_ptr);
                         buffer = handler->
                             handler_request(payload,
                                     static_cast<size_t>(i -
@@ -136,19 +138,22 @@ void RawSocketUDPConnectionManager::run() {
                         LOG(ltrace, "Packet count: " + std::to_string(ct));
                         ct++;
 
-
                         // Recomposing the payload
                         if (header.get_ttl() > 0) {
                             header.set_ttl(header.get_ttl() - 1);
-
                             // Forwarding the data
-                            uint8_t* new_pkt;
-                            sfcu::SFCUtilities::prepend_header(buffer.get(),
+                            //auto new_pkt = new unsigned char[i];
+                            unsigned char new_pkt[i];
+                            unsigned char* new_pkt_ptr;
+                            auto buffer_ptr = buffer.get();
+                            sfcu::SFCUtilities::prepend_header(buffer_ptr,
                                     i - sfcu::SFCUtilities::HEADER_SIZE,
-                                    header.get_header(), new_pkt);
-                            send(reinterpret_cast<char*>(new_pkt),
-                                 // FIXME the handle could change the packet size!
-                                 static_cast<size_t>(i),
+                                    header.get_header(), new_pkt_ptr);
+                            // madre perdoname por mi vida loca
+                            size_t iTotalElement = *(&new_pkt + 1) - new_pkt;
+                            send(reinterpret_cast<char*>(new_pkt_ptr),
+                                 // TODO Always control if it is correct
+                                 iTotalElement,
                                  // FIXME change with sender address
                                  forward_address.c_str(),
                                  forward_port); // FIXME change with sender port

@@ -2,6 +2,7 @@
 // Created by zanna on 28/09/18.
 //
 
+#include <log.h>
 #include "sfcutilities.h"
 
 namespace utils {
@@ -45,11 +46,11 @@ struct sfc_header SFCUtilities::create_header(
     return header;
 }
 
-void SFCUtilities::prepend_header(unsigned char* no_header_pkt, size_t pkt_size,
-          struct sfc_header header, unsigned char* pkt_w_header) {
-    pkt_w_header = new unsigned char[pkt_size + sizeof(header)];
-    memcpy((char*)pkt_w_header, &header, sizeof(header));
-    memcpy((char*)pkt_w_header + sizeof(header), no_header_pkt, pkt_size);
+void SFCUtilities::prepend_header(unsigned char*& no_header_pkt, size_t pkt_size,
+          struct sfc_header header, unsigned char*& pkt_w_header) {
+    pkt_w_header = new unsigned char[HEADER_SIZE + pkt_size];
+    memcpy((char*)pkt_w_header, &header, HEADER_SIZE);
+    memcpy((char*)pkt_w_header + HEADER_SIZE, no_header_pkt, pkt_size);
 }
 
 struct sfc_header SFCUtilities::retrieve_header(uint8_t* packet) {
@@ -58,7 +59,7 @@ struct sfc_header SFCUtilities::retrieve_header(uint8_t* packet) {
     return header;
 }
 
-void SFCUtilities::retrieve_payload(uint8_t* packet, size_t size, uint8_t* payload) {
+void SFCUtilities::retrieve_payload(uint8_t* packet, size_t size, uint8_t*& payload) {
     payload = new uint8_t[size - HEADER_SIZE]; // 24 is the size of the header
     memcpy(payload, packet + HEADER_SIZE, size - HEADER_SIZE);
 }

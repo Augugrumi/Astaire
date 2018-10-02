@@ -65,7 +65,6 @@ private:
     std::shared_ptr<handler::AbsHandler> handler;
 
     std::atomic_bool run_flag;
-
 };
 }
 

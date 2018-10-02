@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
     }
 
 #if (HAS_UDP and HAS_TCP)
-    // madre perdona pur me vida loca
+    // madre perdoname por mi vida loca
     if (!(udp_flag | tcp_flag)) {
         udp_flag = 1;
     }
@@ -133,17 +133,17 @@ int main(int argc, char* argv[])
                         .getField(utils::JsonUtils::LAUNGUAGE), path)
                     );
 
-        connection::RawSocketUDPConnectionManager conn(INADDR_ANY,
-                                                       listen_port,
-                                                       forward_address,
-                                                       forward_port,
-                                                       handler);
+        auto conn = new connection::RawSocketUDPConnectionManager(INADDR_ANY,
+                                                                  listen_port,
+                                                                  forward_address,
+                                                                  forward_port,
+                                                                  handler);
         signal(SIGINT,
                connection::RawSocketUDPConnectionManager::counter_printer);
         if (tcp_flag)
-            t_udp = new std::thread([&](connection::RawSocketUDPConnectionManager* conn){conn->run();}, &conn);
+            t_udp = new std::thread(std::bind(&connection::RawSocketUDPConnectionManager::run, conn));
         else
-            conn.run();
+            conn->run();
     }
 #endif
 #if HAS_TCP
@@ -152,10 +152,10 @@ int main(int argc, char* argv[])
 
         LOG(linfo, "Opening TCP server");
 
-        Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
+        Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(listen_port));
         auto opts = Pistache::Http::Endpoint::options()
-                .threads(1)
-                .maxPayload(BUFFER_SIZE);
+                .maxPayload(BUFFER_SIZE)
+                .threads(1);
         Pistache::Http::Endpoint server(addr);
 
         ch::HelloWorldHandler* test = new ch::HelloWorldHandler();
@@ -166,18 +166,18 @@ int main(int argc, char* argv[])
         Pistache::Rest::Router router = Pistache::Rest::Router();
         Pistache::Rest::Routes::Post(router, "/hello", bind);
 
-        connection::TCPConnectionManager conn(addr, router, opts);
+        auto conn = new connection::TCPConnectionManager(addr, router, opts);
         if (udp_flag)
-            t_tcp = new std::thread([&](connection::TCPConnectionManager* conn){conn->run();}, &conn);
+            t_tcp = new std::thread(std::bind(&connection::TCPConnectionManager::run, conn));
         else
-            conn.run();
+            conn->run();
     }
 #endif
 #if HAS_UDP
     t_udp->join();
 #endif
 #if HAS_TCP
-    t_tcp->join();
+    //t_tcp->join();
 #endif
     return 0;
 }
