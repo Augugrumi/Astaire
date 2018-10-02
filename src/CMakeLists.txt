@@ -68,7 +68,7 @@ endif()
 
 # If enabled, search and use Boost threads
 if (BOOST_THREAD)
-    message(STATUS "Trying to use Boost Thread (if Boost version >= 1.66...)")
+    message(STATUS "Trying to use Boost Thread (if Boost version > 1.66...)")
     # We're going to log only with boost log
     find_package(Boost 1.66 COMPONENTS thread)
     if (Boost_FOUND)
