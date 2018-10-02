@@ -44,23 +44,23 @@ const Address AddressResolver::get_next(uint32_t p_id, uint32_t si) const {
     }
     req_code_res = curl_easy_setopt(curl, CURLOPT_URL, req_addr.c_str());
     if (req_code_res != CURLE_OK) {
-        LOG(lwarn, "Error while setting the CURLOPT_URL");
+        LOG(lwarn, "Error while setting the CURLOPT_URL flag");
     }
     req_code_res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     if (req_code_res != CURLE_OK) {
-        LOG(lwarn, "Error while setting the CURLOPT_FOLLOWLOCATION");
+        LOG(lwarn, "Error while setting the CURLOPT_FOLLOWLOCATION flag");
     }
     req_code_res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, AddressResolver::curl_callback);
     if (req_code_res != CURLE_OK) {
-        LOG(lwarn, "Error while setting the CURLOPT_WRITEFUNCTION");
+        LOG(lwarn, "Error while setting the CURLOPT_WRITEFUNCTION flag");
     }
     req_code_res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, &req_data_res);
     if (req_code_res != CURLE_OK) {
-        LOG(lwarn, "Error while setting the CURLOPT_WRITEDATA");
+        LOG(lwarn, "Error while setting the CURLOPT_WRITEDATA flag");
     }
     req_code_res = curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     if (req_code_res != CURLE_OK) {
-        LOG(lwarn, "Error while setting the CURLOPT_USERAGENT");
+        LOG(lwarn, "Error while setting the CURLOPT_USERAGENT flag");
     }
 
     req_code_res = curl_easy_perform(curl);
