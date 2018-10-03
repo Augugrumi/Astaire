@@ -18,7 +18,12 @@
 #endif
 
 namespace utils {
+namespace jsonCode {
+static const std::string OK="ok";
+static const std::string ERROR="error";
+} // namespace jsonCode
 namespace addressFields {
+static const std::string RESULT="result";
 static const std::string ADDRESS="url";
 static const std::string PORT="port";
 static const std::string CONTENT="content";

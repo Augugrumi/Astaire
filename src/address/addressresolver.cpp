@@ -65,8 +65,8 @@ const Address AddressResolver::get_next(uint32_t p_id, uint32_t si) const {
 
     req_code_res = curl_easy_perform(curl);
     if (req_code_res != CURLE_OK) {
-        LOG(lwarn, "Error while retrieving address from roulette");
-        return Address(nullptr, 0);
+        LOG(lwarn, "Error: failure to retrieve data from roulette");
+        return Address("", 0);
     } else {
         LOG(ldebug, "Request performed successfully");
 
@@ -74,8 +74,19 @@ const Address AddressResolver::get_next(uint32_t p_id, uint32_t si) const {
         utils::JsonUtils::JsonWrapper content(json.getObj(utils::addressFields::CONTENT).toStyledString());
 
         LOG(ltrace, "Response: \n" + req_data_res);
-        return Address(content.getField(utils::addressFields::ADDRESS),
-                       std::stol(content.getField(utils::addressFields::PORT)));
+        if (json.getField(utils::addressFields::RESULT) != utils::jsonCode::OK) {
+            LOG(lwarn, "Error while retrieving the next index");
+            return Address("", 0);
+        }
+        try {
+
+            return Address(content.getField(utils::addressFields::ADDRESS),
+                           std::stol(content.getField(utils::addressFields::PORT)));
+        } catch (const std::invalid_argument& e) {
+            LOG(lwarn, "The received address from roulette is not valid");
+            e.what();
+            return Address("", 0);
+        }
     }
 }
 

@@ -22,6 +22,8 @@
 #include "stringutils.h"
 #include "sfcheader/sfcfixedlengthheader.h"
 #include "sfcheader/sfcutilities.h"
+#include "addressresolver.h"
+#include "address.h"
 
 namespace sfcu = utils::sfc_header;
 
@@ -32,9 +34,8 @@ public:
     RawSocketUDPConnectionManager(
             uint32_t,
             unsigned short int,
-            const std::string &,
-            unsigned short int,
-            std::shared_ptr<handler::AbsHandler>);
+            std::shared_ptr<handler::AbsHandler>,
+            const address::Address&);
     ~RawSocketUDPConnectionManager();
 
     void run();
@@ -57,9 +58,8 @@ public:
 private:
     struct pollfd pollfd;
     struct sockaddr_in addr;
-    std::string forward_address;
 
-    unsigned short int forward_port;
+    address::Address roulette;
     socklen_t addrlen;
     char* buf;
     std::shared_ptr<handler::AbsHandler> handler;

@@ -64,26 +64,33 @@ void RawSocketUDPConnectionManager::pkt_mngmt(ssize_t i, msgptr buffer) {
         sfcu::SFCUtilities::prepend_header(buffer_ptr,
                                            i - sfcu::SFCUtilities::HEADER_SIZE,
                                            header.get_header(), new_pkt_ptr);
-        // madre perdoname por mi vida loca
-        size_t iTotalElement = *(&new_pkt + 1) - new_pkt;
-        send(reinterpret_cast<char*>(new_pkt_ptr),
-                // TODO Always control if it is correct
-             iTotalElement,
-                // FIXME change with sender address
-             forward_address.c_str(),
-             forward_port); // FIXME change with sender port
+
+        address::AddressResolver forward(roulette);
+        address::Address next = forward.get_next(header.get_service_path_id(),
+                                                 header.get_service_index());
+
+        if (next.get_address() == "") {
+            LOG(lwarn, "Impossible to retrieve next address, dropping the packet");
+        } else {
+            // madre perdoname por mi vida loca
+            size_t iTotalElement = *(&new_pkt + 1) - new_pkt;
+            send(reinterpret_cast<char*>(new_pkt_ptr),
+                    // TODO Always control if it is correct
+                 iTotalElement,
+                    // FIXME change with sender address
+                 next.get_address().c_str(),
+                 next.get_port()); // FIXME change with sender port
+        }
     }
 }
 
 RawSocketUDPConnectionManager::RawSocketUDPConnectionManager(
         uint32_t to_listen,
         unsigned short int port,
-        const std::string & to_send,
-        unsigned short int port_to_send,
-        std::shared_ptr<handler::AbsHandler> abshandler)
+        std::shared_ptr<handler::AbsHandler> abshandler,
+        const address::Address& r_frw)
     : UDPConnectionManager(port),
-      forward_address(to_send),
-      forward_port(port_to_send),
+      roulette(r_frw),
       handler(abshandler),
       run_flag(true) {
 
