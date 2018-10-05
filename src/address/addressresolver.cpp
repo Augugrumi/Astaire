@@ -14,7 +14,7 @@ AddressResolver::AddressResolver(const Address& r_a) : roulette_addr(r_a) {
 }
 
 AddressResolver::AddressResolver(const std::string& address, uint16_t port)
-    : AddressResolver(*new Address(address, port)) {
+    : AddressResolver(Address(address, port)) {
 }
 
 AddressResolver::~AddressResolver() {
