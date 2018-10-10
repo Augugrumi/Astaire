@@ -20,7 +20,7 @@ add_executable(${PROJECT_NAME}
     "utils/sfcheader/sfcheaderstruct.h"
     "utils/sfcheader/sfcutilities.cpp"
     "address/address.cpp"
-    "address/addressresolver.cpp")
+    "address/addressresolver.cpp" utils/maprefresher.h)
 
 
 
