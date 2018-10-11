@@ -6,6 +6,7 @@
 #include <functional>
 #include <curl/curl.h>
 #include <map>
+#include <vector>
 
 #include "sfcheader/sfcfixedlengthheader.h"
 #include "address.h"
@@ -30,10 +31,13 @@ public:
 private:
     const Address roulette_addr;
     CURL* curl = nullptr;
-
+    std::map<uint32_t, std::vector<Address>> local_resolver;
+    refresher::map_refresher<uint32_t, std::vector<Address>>* updater;
 
     const std::string url_builder(const std::string&, uint32_t, uint32_t) const;
     static size_t curl_callback(void*, size_t, size_t, std::string*);
+
+    void setup_curl_for_request(std::string req_addr, std::string req_data_res) const;
 
     const Address get_chain_endpoint(utils::sfc_header::SFCFixedLengthHeader) const;
 };
