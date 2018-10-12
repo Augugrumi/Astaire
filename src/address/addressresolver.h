@@ -25,12 +25,13 @@ class AddressResolver {
 public:
     AddressResolver(const std::string&, uint16_t port);
     AddressResolver(const Address&);
-    virtual ~AddressResolver();
 
     const Address get_next(uint32_t, uint32_t, utils::sfc_header::SFCFixedLengthHeader) const;
+
+    virtual ~AddressResolver();
 private:
-    const Address roulette_addr;
-    CURL* curl = nullptr;
+        const Address roulette_addr;
+        CURL* curl = nullptr;
     std::map<uint32_t, std::vector<Address>> local_resolver;
     refresher::map_refresher<uint32_t, std::vector<Address>>* updater;
 

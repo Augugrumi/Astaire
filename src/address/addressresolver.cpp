@@ -32,7 +32,7 @@ AddressResolver::AddressResolver(const Address& r_a) : roulette_addr(r_a) {
                     utils::JsonUtils::JsonWrapper json(req_data_res);
                     //utils::JsonUtils::JsonWrapper content(json.getObj(utils::addressFields::CONTENT).asString());
                     Json::Value content = json.getObj(utils::addressFields::CONTENT);
-                    LOG(ltrace, "Response: \n" + req_data_res);
+                    LOG(ltrace, "1. Response: \n" + req_data_res);
                     if (json.getField(utils::addressFields::RESULT) != utils::jsonCode::OK) {
 
                         LOG(lwarn, "Error while retrieving the next index");
@@ -64,6 +64,7 @@ AddressResolver::AddressResolver(const std::string& address, uint16_t port)
 }
 
 AddressResolver::~AddressResolver() {
+    updater->stop();
     if (curl != nullptr) {
         curl_easy_cleanup(curl);
     }
@@ -86,7 +87,33 @@ const Address AddressResolver::get_next(uint32_t p_id, uint32_t si,
     std::string req_data_res;
     std::string req_addr = url_builder(roulette_addr.get_URL(), p_id, si);
 
-    setup_curl_for_request(req_addr, req_data_res);
+    //setup_curl_for_request(req_addr, req_data_res);
+    LOG(ltrace, "Setting curl options");
+    LOG(ltrace, "Request to: " + req_addr);
+    req_code_res = curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
+    if (req_code_res != CURLE_OK) {
+        LOG(lwarn, "Error while setting the request to GET");
+    }
+    req_code_res = curl_easy_setopt(curl, CURLOPT_URL, req_addr.c_str());
+    if (req_code_res != CURLE_OK) {
+        LOG(lwarn, "Error while setting the CURLOPT_URL flag");
+    }
+    req_code_res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    if (req_code_res != CURLE_OK) {
+        LOG(lwarn, "Error while setting the CURLOPT_FOLLOWLOCATION flag");
+    }
+    req_code_res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, AddressResolver::curl_callback);
+    if (req_code_res != CURLE_OK) {
+        LOG(lwarn, "Error while setting the CURLOPT_WRITEFUNCTION flag");
+    }
+    req_code_res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, &req_data_res);
+    if (req_code_res != CURLE_OK) {
+        LOG(lwarn, "Error while setting the CURLOPT_WRITEDATA flag");
+    }
+    req_code_res = curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+    if (req_code_res != CURLE_OK) {
+        LOG(lwarn, "Error while setting the CURLOPT_USERAGENT flag");
+    }
 
     req_code_res = curl_easy_perform(curl);
     if (req_code_res != CURLE_OK) {
@@ -94,21 +121,45 @@ const Address AddressResolver::get_next(uint32_t p_id, uint32_t si,
         return Address("", 0);
     } else {
         LOG(ldebug, "Request performed successfully");
+        LOG(ldebug, req_data_res);
+        //utils::JsonUtils::JsonWrapper json(req_data_res);
 
-        utils::JsonUtils::JsonWrapper json(req_data_res);
-        utils::JsonUtils::JsonWrapper content(json.getObj(utils::addressFields::CONTENT).toStyledString());
+        Json::CharReaderBuilder builder;
+        std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+        Json::Value response;
 
-        LOG(ltrace, "Response: \n" + req_data_res);
-        if (json.getField(utils::addressFields::RESULT) != utils::jsonCode::OK) {
+        std::string errors;
+        bool parsingSuccessful = reader->parse(req_data_res.c_str(),
+                      req_data_res.c_str() + req_data_res.size(),
+                      &response,
+                      &errors);
+
+        if (!parsingSuccessful) {
+            LOG(ldebug, errors);
+        }
+
+        LOG(ldebug, response[utils::addressFields::RESULT].asString());
+
+        for( Json::Value::const_iterator outer = response.begin() ; outer != response.end() ; outer++ ) {
+            for( Json::Value::const_iterator inner = (*outer).begin() ; inner!= (*outer).end() ; inner++ ) {
+                std::string s(inner.key().asString());
+                s.append(" : ").append((*inner).asString());
+                LOG(ldebug, s);
+            }
+        }
+
+        LOG(ltrace, "2. Response: \n" + req_data_res);
+        if (response[utils::addressFields::RESULT].asString() != utils::jsonCode::OK) {
             // TODO implement on roulette case of index requested is last + 1 to differentiate errors and chain end
             return get_chain_endpoint(header);
             //LOG(lwarn, "Error while retrieving the next index");
             //return Address("", 0);
         }
         try {
-
-            return Address(content.getField(utils::addressFields::ADDRESS),
-                           std::stol(content.getField(utils::addressFields::PORT)));
+            return Address(response[utils::addressFields::CONTENT]
+                                   [utils::addressFields::ADDRESS].asString(),
+                           std::stol(response[utils::addressFields::CONTENT]
+                                             [utils::addressFields::PORT].asString()));
         } catch (const std::invalid_argument& e) {
             LOG(lwarn, "The received address from roulette is not valid");
             e.what();
@@ -157,7 +208,7 @@ const Address AddressResolver::get_chain_endpoint(
         utils::JsonUtils::JsonWrapper json(req_data_res);
         utils::JsonUtils::JsonWrapper content(json.getObj(utils::addressFields::CONTENT).asString());
 
-        LOG(ltrace, "Response: \n" + req_data_res);
+        LOG(ltrace, "3. Response: \n" + req_data_res);
         try {
 
             return Address(content.getField(utils::addressFields::ADDRESS),

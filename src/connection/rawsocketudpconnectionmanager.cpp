@@ -56,6 +56,7 @@ void RawSocketUDPConnectionManager::pkt_mngmt(ssize_t i, msgptr buffer) {
     // Recomposing the payload
     if (header.get_ttl() > 0) {
         header.set_ttl(header.get_ttl() - 1);
+        header.set_service_index(header.get_service_index() + 1);
         // Forwarding the data
         //auto new_pkt = new unsigned char[i];
         unsigned char new_pkt[i];
@@ -70,6 +71,7 @@ void RawSocketUDPConnectionManager::pkt_mngmt(ssize_t i, msgptr buffer) {
                                                  header.get_service_index(),
                                                  header);
 
+        LOG(ldebug, next.get_URL());
         if (next.get_address() == "") {
             LOG(lwarn, "Impossible to retrieve next address, dropping the packet");
         } else {
