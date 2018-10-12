@@ -17,7 +17,7 @@ AddressResolver::AddressResolver(const Address& r_a) : roulette_addr(r_a) {
                 CURLcode req_code_res;
                 std::string req_data_res;
                 std::string req_addr;
-                req_addr.append("route/")
+                req_addr.append("routes/")
                         .append(std::to_string(k));
 
                 setup_curl_for_request(req_addr, req_data_res);
@@ -120,7 +120,7 @@ const Address AddressResolver::get_next(uint32_t p_id, uint32_t si,
 const std::string AddressResolver::url_builder(const std::string& original_url, uint32_t p_id, uint32_t si) const {
     std::string req_addr = original_url;
 
-    req_addr.append("route/")
+    req_addr.append("routes/")
             .append(std::to_string(p_id))
             .append(Address::path_separator)
             .append(std::to_string(si));
