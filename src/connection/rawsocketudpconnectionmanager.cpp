@@ -67,7 +67,8 @@ void RawSocketUDPConnectionManager::pkt_mngmt(ssize_t i, msgptr buffer) {
 
         address::AddressResolver forward(roulette);
         address::Address next = forward.get_next(header.get_service_path_id(),
-                                                 header.get_service_index());
+                                                 header.get_service_index(),
+                                                 header);
 
         if (next.get_address() == "") {
             LOG(lwarn, "Impossible to retrieve next address, dropping the packet");
