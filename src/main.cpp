@@ -35,7 +35,7 @@ void usage() {
             " -t            To set connection type to TCP\n"
 #endif
             " -l            To specify the port on which the program wait for packets, default '8767'\n"
-            " -i            To specify the IP address to which the program sends packets, default 'localhost'\n"
+            " -i            To specify the IP address our roulette backend, default 'localhost'\n"
             " -f            To specify the port to which sends packets, default '8768'\n"
             " -r            Roulette address [address:port]"
             " -h            Show this message\n";
