@@ -40,15 +40,15 @@ void RawSocketUDPConnectionManager::pkt_mngmt(ssize_t i, msgptr buffer) {
     // Calling the handler
     unsigned char* payload_ptr;
     sfcu::SFCUtilities::retrieve_payload(buffer.get(),
-         static_cast<size_t>(i -sfcu::SFCUtilities::HEADER_SIZE),
+         static_cast<size_t>(i - sfcu::SFCUtilities::HEADER_SIZE),
          payload_ptr);
 
     LOG(linfo, header.get_destination_ip_address());
     msgptr payload(payload_ptr);
     buffer = handler->
-            handler_request(payload,
-                            static_cast<size_t>(i -
-                                                sfcu::SFCUtilities::HEADER_SIZE));
+            handler_request(
+                payload,
+                static_cast<size_t>(i - sfcu::SFCUtilities::HEADER_SIZE));
 
     LOG(ltrace, "Packet count: " + std::to_string(ct));
     ct++;
@@ -73,7 +73,8 @@ void RawSocketUDPConnectionManager::pkt_mngmt(ssize_t i, msgptr buffer) {
 
         LOG(ldebug, next.get_URL());
         if (next.get_address() == "") {
-            LOG(lwarn, "Impossible to retrieve next address, dropping the packet");
+            LOG(lwarn, "Impossible to retrieve next address, dropping the"
+                       " packet");
         } else {
             // madre perdoname por mi vida loca
             size_t iTotalElement = *(&new_pkt + 1) - new_pkt;
@@ -176,8 +177,9 @@ void RawSocketUDPConnectionManager::run() {
                     std::string ack = "ACK";
                     send(pollfd.fd, ack.c_str(), ack.size(), &client);
                     ASYNC_TASK(
-                        std::bind<void>(&RawSocketUDPConnectionManager::pkt_mngmt,
-                                        this, i, cloned_buffer));
+                        std::bind<void>(
+                                    &RawSocketUDPConnectionManager::pkt_mngmt,
+                                    this, i, cloned_buffer));
                 } else if (errno != 0) {
                     LOG(lfatal, "Errno: " + std::to_string(errno));
                     LOG(lfatal, strerror(errno));
