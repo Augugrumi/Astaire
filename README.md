@@ -14,12 +14,12 @@ make;
 
 Table of flags:
 
-| Name             | Default   | Options          | Description                                                       |
-|------------------|-----------|------------------|-------------------------------------------------------------------|
-| CMAKE_BUILD_TYPE | `Debug`   | `Debug`/`Relase` | Set the build type. Debug offer more logs and debug info          |
-| JNI              | `False`   | `True`/`False`   | Set Java/C++ integration. This option allow to use Java handlers  |
-| UDP              | `True`    | `True`/`False`   | Set UDP functionality.                                            |
-| TCP              | `True`    | `True`/`False`   | Set TCP functionality. Pistache library is required as dependency |
+| Name             | Default   | Options          | Description                                                        |
+|------------------|-----------|------------------|--------------------------------------------------------------------|
+| CMAKE_BUILD_TYPE | `Debug`   | `Debug`/`Relase` | Set the build type. Debug offers more logs and debug info           |
+| JNI              | `False`   | `True`/`False`   | Set Java/C++ integration. This option allows to use Java handlers  |
+| UDP              | `True`    | `True`/`False`   | Set UDP functionality.                                             |
+| TCP              | `True`    | `True`/`False`   | Set TCP functionality. Pistache library is required as dependency  |
 
 # License
 
