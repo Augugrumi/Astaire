@@ -40,10 +40,13 @@ void RawSocketUDPConnectionManager::pkt_mngmt(ssize_t i, msgptr buffer) {
     // Calling the handler
     unsigned char* payload_ptr;
     sfcu::SFCUtilities::retrieve_payload(buffer.get(),
-         static_cast<size_t>(i - sfcu::SFCUtilities::HEADER_SIZE),
-         payload_ptr);
+                                         static_cast<size_t>(i),
+                                         payload_ptr);
 
     LOG(linfo, header.get_destination_ip_address());
+    LOG(linfo, header.get_source_ip_address());
+    LOG(linfo, std::to_string(htons(header.get_destination_port())));
+    LOG(linfo, std::to_string(htons(header.get_source_port())));
     msgptr payload(payload_ptr);
     buffer = handler->
             handler_request(

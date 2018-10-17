@@ -8,7 +8,7 @@
 namespace utils {
 namespace sfc_header {
 
-const uint8_t SFCUtilities::HEADER_SIZE = 24;
+const uint8_t SFCUtilities::HEADER_SIZE = sizeof(struct sfc_header);
 
 uint32_t SFCUtilities::ip_to_int(const char *ip_string) {
     return inet_addr(ip_string);
