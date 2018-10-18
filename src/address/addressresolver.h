@@ -7,6 +7,7 @@
 #include <curl/curl.h>
 #include <map>
 #include <vector>
+#include <linux/ip.h>
 
 #include "sfcheader/sfcfixedlengthheader.h"
 #include "address.h"
@@ -26,7 +27,9 @@ public:
     AddressResolver(const std::string&, uint16_t port);
     AddressResolver(const Address&);
 
-    const Address get_next(uint32_t, uint32_t, utils::sfc_header::SFCFixedLengthHeader) const;
+    const Address get_next(uint32_t, uint32_t,
+                           utils::sfc_header::SFCFixedLengthHeader,
+                           unsigned char* pkt) const;
 
     virtual ~AddressResolver();
 private:
@@ -38,9 +41,10 @@ private:
     const std::string url_builder(const std::string&, uint32_t, uint32_t) const;
     static size_t curl_callback(void*, size_t, size_t, std::string*);
 
-    void setup_curl_for_request(std::string req_addr, std::string req_data_res) const;
+    void setup_curl_for_request(std::string req_addr, std::string& req_data_res) const;
 
-    const Address get_chain_endpoint(utils::sfc_header::SFCFixedLengthHeader) const;
+    const Address get_chain_endpoint(utils::sfc_header::SFCFixedLengthHeader,
+                                     unsigned char* pkt) const;
 };
 } // namespace address
 

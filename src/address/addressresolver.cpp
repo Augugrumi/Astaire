@@ -78,7 +78,8 @@ size_t AddressResolver::curl_callback(void* ptr, size_t size, size_t nmemb, std:
 }
 
 const Address AddressResolver::get_next(uint32_t p_id, uint32_t si,
-        utils::sfc_header::SFCFixedLengthHeader header) const {
+                                        utils::sfc_header::SFCFixedLengthHeader header,
+                                        unsigned char* pkt) const {
     auto it = local_resolver.find(p_id);
     if (it != local_resolver.end())
         if (it->second.size()>si)
@@ -150,8 +151,12 @@ const Address AddressResolver::get_next(uint32_t p_id, uint32_t si,
 
         LOG(ltrace, "2. Response: \n" + req_data_res);
         if (response[utils::addressFields::RESULT].asString() != utils::jsonCode::OK) {
+
             // TODO implement on roulette case of index requested is last + 1 to differentiate errors and chain end
-            return get_chain_endpoint(header);
+            if (response[utils::addressFields::ERR_CODE].asInt() == -1) {
+                LOG(ltrace, "get endpoint chain");
+                return get_chain_endpoint(header, pkt);
+            }
             //LOG(lwarn, "Error while retrieving the next index");
             //return Address("", 0);
         }
@@ -180,39 +185,73 @@ const std::string AddressResolver::url_builder(const std::string& original_url, 
 }
 
 const Address AddressResolver::get_chain_endpoint(
-        utils::sfc_header::SFCFixedLengthHeader header) const {
+        utils::sfc_header::SFCFixedLengthHeader header, unsigned char* pkt) const {
+    LOG(ldebug, "1");
     CURLcode req_code_res;
+    LOG(ldebug, "2");
     std::string req_data_res;
-    std::string endpoint = header.get_direction_flag()? "egress/" : "ingress/";
-    std::string req_addr = req_addr.append("enpoints/")
-                                   .append(endpoint)
-                                   .append(header.get_source_ip_address())
-                                   .append(Address::path_separator)
-                                   .append(header.get_destination_ip_address())
-                                   .append(Address::path_separator)
-                                   .append(std::to_string(header.get_source_port()))
-                                   .append(Address::path_separator)
-                                   .append(std::to_string(header.get_destination_port()))
-                                   .append(Address::path_separator)
-                                   .append(std::to_string(header.get_service_path_id()));
+    LOG(ldebug, "3");
+    std::string endpoint = header.get_direction_flag()? "ingress/" : "egress/";
+    LOG(ldebug, "4");
+
+    struct iphdr h_ip;
+    memcpy(&h_ip, pkt, sizeof(iphdr));
+
+    std::string protocol;
+    h_ip.protocol == 6 ? protocol = "tcp" : protocol = "udp";
+
+    std::string req_addr;
+    req_addr.append(roulette_addr.get_URL())
+            .append("endpoints/")
+            .append(endpoint)
+            .append(header.get_source_ip_address())
+            .append(Address::path_separator)
+            .append(header.get_destination_ip_address())
+            .append(Address::path_separator)
+            .append(std::to_string(htons(header.get_source_port())))
+            .append(Address::path_separator)
+            .append(std::to_string(htons(header.get_destination_port())))
+            .append(Address::path_separator)
+            .append(std::to_string(header.get_service_path_id()))
+            .append(Address::path_separator)
+            .append(protocol);
+
+    LOG(ldebug, "**************");
+    LOG(ldebug, req_addr);
+    LOG(ldebug, "**************");
 
     setup_curl_for_request(req_addr, req_data_res);
 
     req_code_res = curl_easy_perform(curl);
+    LOG(ltrace, req_data_res);
     if (req_code_res != CURLE_OK) {
         LOG(lwarn, "Error: failure to retrieve data from roulette");
         return Address("", 0);
     } else {
-        LOG(ldebug, "Request performed successfully");
+        LOG(ldebug, "Request performed successfully " + req_data_res);
 
-        utils::JsonUtils::JsonWrapper json(req_data_res);
-        utils::JsonUtils::JsonWrapper content(json.getObj(utils::addressFields::CONTENT).asString());
-
-        LOG(ltrace, "3. Response: \n" + req_data_res);
         try {
+            Json::CharReaderBuilder builder;
+            std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+            Json::Value response;
 
-            return Address(content.getField(utils::addressFields::ADDRESS),
-                           std::stol(content.getField(utils::addressFields::PORT)));
+            std::string errors;
+            bool parsingSuccessful = reader->parse(req_data_res.c_str(),
+                                                   req_data_res.c_str() +
+                                                        req_data_res.size(),
+                                                   &response,
+                                                   &errors);
+
+            if (!parsingSuccessful) {
+                LOG(ldebug, errors);
+            }
+
+            std::string endpoint = header.get_direction_flag() ?
+                                       utils::addressFields::INGRESS :
+                                       utils::addressFields::EGRESS;
+
+            return Address(response[utils::addressFields::CONTENT]
+                                   [endpoint].asString());
         } catch (const std::invalid_argument& e) {
             LOG(lwarn, "The received address from roulette is not valid");
             e.what();
@@ -222,7 +261,7 @@ const Address AddressResolver::get_chain_endpoint(
 }
 
 void AddressResolver::setup_curl_for_request(std::string req_addr,
-                                             std::string req_data_res) const {
+                                             std::string& req_data_res) const {
     LOG(ltrace, "Setting curl options");
     LOG(ltrace, "Request to: " + req_addr);
     CURLcode req_code_res = curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
