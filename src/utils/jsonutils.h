@@ -27,6 +27,9 @@ static const std::string RESULT="result";
 static const std::string ADDRESS="url";
 static const std::string PORT="port";
 static const std::string CONTENT="content";
+static const std::string ERR_CODE="errorcode";
+static const std::string EGRESS="ipEgress";
+static const std::string INGRESS="ipIngress";
 } // namespace addressFields
 namespace HandlerFields {
 static const std::string DEFAULT_CONFIG_PATH="./conf.json";;
