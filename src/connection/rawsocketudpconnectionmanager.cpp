@@ -72,7 +72,8 @@ void RawSocketUDPConnectionManager::pkt_mngmt(ssize_t i, msgptr buffer) {
         address::AddressResolver forward(roulette);
         address::Address next = forward.get_next(header.get_service_path_id(),
                                                  header.get_service_index(),
-                                                 header);
+                                                 header,
+                                                 new_pkt_ptr + sfcu::SFCUtilities::HEADER_SIZE);
 
         LOG(ldebug, next.get_URL());
         if (next.get_address() == "") {
@@ -80,6 +81,7 @@ void RawSocketUDPConnectionManager::pkt_mngmt(ssize_t i, msgptr buffer) {
                        " packet");
         } else {
             // madre perdoname por mi vida loca
+            LOG(ltrace, "to the endpoint");
             size_t iTotalElement = *(&new_pkt + 1) - new_pkt;
             send(reinterpret_cast<char*>(new_pkt_ptr),
                     // TODO Always control if it is correct
