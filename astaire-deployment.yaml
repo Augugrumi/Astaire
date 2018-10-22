@@ -1,0 +1,41 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: astaire-deployment
+  namespace: default
+  labels:
+    k8s-app: astaire-vnf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: astaire-vnf
+  template:
+    metadata:
+      labels:
+        k8s-app: astaire-vnf
+        name: astaire-vnf
+    spec:
+      containers:
+        - name: astaire
+          image: augugrumi/astaire:latest-alpine
+          args: ["-u"]
+          imagePullPolicy: Always
+          ports:
+            - name: udp
+              containerPort: 8767
+              protocol: UDP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: astaire-service
+  namespace: default
+spec:
+  selector:
+    k8s-app: astaire-vnf
+  ports:
+    - name: udp
+      port: 8767
+      protocol: UDP
+  type: NodePort
