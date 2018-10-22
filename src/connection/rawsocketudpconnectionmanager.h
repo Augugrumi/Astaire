@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <cstring>
+#include <cstdlib>
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
@@ -18,6 +19,13 @@
 #include "log.h"
 #include "asynctaskexecutor.h"
 #include "handler/abshandler.h"
+#include "stringutils.h"
+#include "sfcheader/sfcfixedlengthheader.h"
+#include "sfcheader/sfcutilities.h"
+#include "addressresolver.h"
+#include "address.h"
+
+namespace sfcu = utils::sfc_header;
 
 namespace connection {
 class RawSocketUDPConnectionManager : public UDPConnectionManager
@@ -26,9 +34,8 @@ public:
     RawSocketUDPConnectionManager(
             uint32_t,
             unsigned short int,
-            const std::string &,
-            unsigned short int,
-            std::shared_ptr<handler::AbsHandler>);
+            std::shared_ptr<handler::AbsHandler>,
+            const address::Address&);
     ~RawSocketUDPConnectionManager();
 
     void run();
@@ -51,15 +58,15 @@ public:
 private:
     struct pollfd pollfd;
     struct sockaddr_in addr;
-    std::string forward_address;
 
-    unsigned short int forward_port;
+    address::Address roulette;
     socklen_t addrlen;
     char* buf;
     std::shared_ptr<handler::AbsHandler> handler;
 
     std::atomic_bool run_flag;
 
+    void pkt_mngmt(ssize_t, msgptr);
 };
 }
 

@@ -14,7 +14,13 @@ add_executable(${PROJECT_NAME}
     "connection/handler/abshandler.cpp"
     "utils/jsonutils.cpp"
     "connection/handler/handlercreator.cpp"
-    "connection/handler/printerhandler.cpp")
+    "connection/handler/printerhandler.cpp"
+    "utils/sfcheader/sfcfixedlengthheader.cpp"
+    "utils/stringutils.cpp"
+    "utils/sfcheader/sfcheaderstruct.h"
+    "utils/sfcheader/sfcutilities.cpp"
+    "address/address.cpp"
+    "address/addressresolver.cpp" utils/maprefresher.h)
 
 
 
@@ -33,6 +39,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/utils")
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection")
 target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/connection/handler")
+target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/address")
 
 # Optional compilation flags
 option(BOOST_THREAD "For boost thread pool support" ON)
@@ -45,6 +52,9 @@ set(HAS_TCP ${TCP})
 # Set buffer limit for UDP Connections
 set(BUFFER_SIZE 65536) # Buffer when receiving packets
 set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
+
+# SFCFixedLengthHeader flags
+set(METADATA_FLAG 0x01)
 
 if (NOT TCP AND NOT UDP)
     message(FATAL_ERROR "You must have at least one between TCP or UDP enabled")
@@ -59,7 +69,7 @@ endif()
 
 # If enabled, search and use Boost threads
 if (BOOST_THREAD)
-    message(STATUS "Trying to use Boost Thread (if Boost version >= 1.66...)")
+    message(STATUS "Trying to use Boost Thread (if Boost version > 1.66...)")
     # We're going to log only with boost log
     find_package(Boost 1.66 COMPONENTS thread)
     if (Boost_FOUND)
@@ -85,6 +95,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
 find_package(Boost 1.58 COMPONENTS system REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
+
+# CUrl in needed
+find_package(CURL REQUIRED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CURL_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CURL_LIBRARIES})
+
 
 # Search for JNI integration
 if (JNI)
