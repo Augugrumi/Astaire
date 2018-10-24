@@ -20,7 +20,7 @@
 namespace utils {
 namespace jsonCode {
 static const std::string OK="ok";
-//static const std::string ERROR="error";
+static const std::string ERROR="error";
 } // namespace jsonCode
 namespace addressFields {
 static const std::string RESULT="result";
