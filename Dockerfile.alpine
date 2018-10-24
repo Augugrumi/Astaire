@@ -7,6 +7,7 @@ FROM alpine:3.8
 LABEL maintainer="poloniodavide@gmail.com"
 
 RUN apk --update --no-cache add \
+    libcurl \
     jsoncpp \
     boost-system \
     boost-thread && \
