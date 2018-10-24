@@ -18,10 +18,6 @@
 namespace address {
 
 class AddressResolver {
-/*
- * TODO create a map<sfcid/chain> that autorefreshes each some
- * interval of time
- */
 
 public:
     AddressResolver(const Address&);
