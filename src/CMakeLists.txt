@@ -3,13 +3,9 @@ add_executable(${PROJECT_NAME}
     "utils/log.cpp"
     "utils/threadpool.h"
     "connection/connectionmanager.cpp"
-    "connection/handler/binding_handler.cpp"
-    "connection/handler/helloworldhandler.cpp"
-    "connection/handler/asynctaskexecutor.cpp"
-    "connection/tcpconnectionmanager.cpp"
-    "connection/udpconnectionmanager.cpp"
-    "connection/boostudpconnectionmanager.cpp"
-    "connection/rawsocketudpconnectionmanager.cpp"
+        "connection/handler/asynctaskexecutor.cpp"
+        "connection/udpconnectionmanager.cpp"
+        "connection/rawsocketudpconnectionmanager.cpp"
     "connection/handler/javahandler.cpp"
     "connection/handler/abshandler.cpp"
     "utils/jsonutils.cpp"
@@ -20,9 +16,8 @@ add_executable(${PROJECT_NAME}
     "utils/sfcheader/sfcheaderstruct.h"
     "utils/sfcheader/sfcutilities.cpp"
     "address/address.cpp"
-    "address/addressresolver.cpp" utils/maprefresher.h)
-
-
+    "address/addressresolver.cpp"
+    "utils/maprefresher.h")
 
 # Set library version
 set_target_properties(
@@ -45,27 +40,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${astaire_SOURCE_DIR}/src/ad
 option(BOOST_THREAD "For boost thread pool support" ON)
 option(JNI "For Java VNF hook implementations" ON)
 option(UDP "For UDP support" ON)
-option(TCP "For TCP support" ON)
 
-set(HAS_UDP ${UDP})
-set(HAS_TCP ${TCP})
 # Set buffer limit for UDP Connections
 set(BUFFER_SIZE 65536) # Buffer when receiving packets
 set(TIMEOUT_WAIT -1) # Polling timeout. Default to no timeout
 
 # SFCFixedLengthHeader flags
 set(METADATA_FLAG 0x01)
-
-if (NOT TCP AND NOT UDP)
-    message(FATAL_ERROR "You must have at least one between TCP or UDP enabled")
-endif()
-
-if (TCP)
-# Search for libpistache
-pkg_check_modules(LIBPISTACHE REQUIRED libpistache)
-target_include_directories(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBPISTACHE_LIBRARIES})
-endif()
 
 # If enabled, search and use Boost threads
 if (BOOST_THREAD)

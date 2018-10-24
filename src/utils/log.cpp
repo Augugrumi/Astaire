@@ -72,12 +72,6 @@ void Log::set_prefix(const std::string & new_prefix) const {
     prefix = new_prefix;
 }
 
-Log::Log() noexcept {
-}
-
-Log::~Log() {
-}
-
 Log* Log::instance() {
     return inst;
 }

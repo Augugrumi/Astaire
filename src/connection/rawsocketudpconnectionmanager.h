@@ -2,7 +2,6 @@
 #define RAWSOCKETUDPCONNECTIONMANAGER_H
 
 #include "config.h"
-#if HAS_UDP
 
 #include <poll.h>
 #include <sys/types.h>
@@ -28,8 +27,8 @@
 namespace sfcu = utils::sfc_header;
 
 namespace connection {
-class RawSocketUDPConnectionManager : public UDPConnectionManager
-{
+
+class RawSocketUDPConnectionManager : public UDPConnectionManager {
 public:
     RawSocketUDPConnectionManager(
             uint32_t,
@@ -70,5 +69,4 @@ private:
 };
 }
 
-#endif
 #endif // RAWSOCKETUDPCONNECTIONMANAGER_H

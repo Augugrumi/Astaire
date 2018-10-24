@@ -59,9 +59,9 @@ AddressResolver::AddressResolver(const Address& r_a) : roulette_addr(r_a) {
     updater->start();
 }
 
-AddressResolver::AddressResolver(const std::string& address, uint16_t port)
+/*AddressResolver::AddressResolver(const std::string& address, uint16_t port)
     : AddressResolver(Address(address, port)) {
-}
+}*/
 
 AddressResolver::~AddressResolver() {
     updater->stop();

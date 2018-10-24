@@ -1,7 +1,6 @@
 #include "udpconnectionmanager.h"
 
 #include "config.h"
-#if HAS_UDP
 
 namespace connection {
 
@@ -13,5 +12,3 @@ uint16_t UDPConnectionManager::get_port() {
     return port;
 }
 }
-
-#endif
