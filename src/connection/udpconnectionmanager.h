@@ -2,7 +2,6 @@
 #define UDPCONNECTIONMANAGER_H
 
 #include "config.h"
-#if HAS_UDP
 
 #include <cstdint>
 #include <netinet/in.h>
@@ -22,7 +21,7 @@ private:
     uint16_t port;
 
 };
+
 }
 
-#endif
 #endif // UDPCONNECTIONMANAGER_H

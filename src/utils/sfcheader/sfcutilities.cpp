@@ -2,19 +2,15 @@
 // Created by zanna on 28/09/18.
 //
 
-#include <log.h>
 #include "sfcutilities.h"
 
-namespace utils {
-namespace sfc_header {
+const uint8_t utils::sfc_header::SFCUtilities::HEADER_SIZE = sizeof(struct sfc_header);
 
-const uint8_t SFCUtilities::HEADER_SIZE = sizeof(struct sfc_header);
-
-uint32_t SFCUtilities::ip_to_int(const char *ip_string) {
+uint32_t utils::sfc_header::SFCUtilities::ip_to_int(const char *ip_string) {
     return inet_addr(ip_string);
 }
 
-std::string SFCUtilities::int_to_ip(uint32_t ip_int) {
+std::string utils::sfc_header::SFCUtilities::int_to_ip(uint32_t ip_int) {
     struct in_addr addr;
     addr.s_addr = ip_int;
     char* buf = inet_ntoa(addr);// conversion BigEndian/LittleEndian?
@@ -22,7 +18,7 @@ std::string SFCUtilities::int_to_ip(uint32_t ip_int) {
     return ip_string;
 }
 
-struct sfc_header SFCUtilities::create_header(
+struct sfc_header utils::sfc_header::SFCUtilities::create_header(
         uint32_t service_path_id, uint32_t service_index,
         char *source_address, uint16_t source_port,
         char *dest_address, uint16_t dest_port,
@@ -46,23 +42,20 @@ struct sfc_header SFCUtilities::create_header(
     return header;
 }
 
-void SFCUtilities::prepend_header(unsigned char*& no_header_pkt, size_t pkt_size,
+void utils::sfc_header::SFCUtilities::prepend_header(unsigned char*& no_header_pkt, size_t pkt_size,
           struct sfc_header header, unsigned char*& pkt_w_header) {
     pkt_w_header = new unsigned char[HEADER_SIZE + pkt_size];
     memcpy((char*)pkt_w_header, &header, HEADER_SIZE);
     memcpy((char*)pkt_w_header + HEADER_SIZE, no_header_pkt, pkt_size);
 }
 
-struct sfc_header SFCUtilities::retrieve_header(uint8_t* packet) {
+struct sfc_header utils::sfc_header::SFCUtilities::retrieve_header(uint8_t* packet) {
     struct sfc_header header;
     memcpy(&header, packet, sizeof(header));
     return header;
 }
 
-void SFCUtilities::retrieve_payload(uint8_t* packet, size_t size, uint8_t*& payload) {
+void utils::sfc_header::SFCUtilities::retrieve_payload(uint8_t* packet, size_t size, uint8_t*& payload) {
     payload = new uint8_t[size - HEADER_SIZE]; // 24 is the size of the header
     memcpy(payload, packet + HEADER_SIZE, size - HEADER_SIZE);
 }
-
-} // namespace sfcheader
-} // namespace utils

@@ -31,7 +31,7 @@ void Address::address_parse(const std::string& url) {
 }
 
 bool Address::prefix_check(const std::string& address) const {
-    return strncmp(address.c_str(), prefix.c_str(), prefix.size()) == 0 ? true : false;
+    return strncmp(address.c_str(), prefix.c_str(), prefix.size()) == 0;
 }
 
 int Address::get_port() const {

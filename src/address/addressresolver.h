@@ -24,7 +24,6 @@ class AddressResolver {
  */
 
 public:
-    AddressResolver(const std::string&, uint16_t port);
     AddressResolver(const Address&);
 
     const Address get_next(uint32_t, uint32_t,
