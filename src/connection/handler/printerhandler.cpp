@@ -9,16 +9,13 @@ namespace handler {
 PrinterHandler::PrinterHandler() : AbsHandler(utils::HandlerFields::DEFAULT_CONFIG_PATH) {}
 
 msgptr PrinterHandler::handler_request(msgptr message, std::size_t size) {
-#if HAS_UDP
-    std::cout << "Message size:\t" << size << std::endl;
-    std::cout << "Message num :\t" << connection::RawSocketUDPConnectionManager::ct << std::endl;
-    std::cout << "--------------------" << std::endl;
+    struct timeval te;
+    gettimeofday(&te, NULL); // get current time
+    double seconds = te.tv_sec + (te.tv_usec * 0.000001);
+    auto file = fopen("test.txt", "a");
+    fprintf(file, "%f\n", seconds);
+    fclose(file);
     return message;
-#else
-    std::cout << "Message size:\n\t" << size << std::endl;
-    std::cout << "Message num :\n\t" << message << std::endl;
-    return message;
-#endif
 }
 
 } // namespace handler

@@ -6,6 +6,12 @@
 #define ASTAIRE_PRINTERHANDLER_H
 
 #include <iostream>
+#include <sys/time.h>
+#include <cstddef>
+#include <stdio.h>
+#include <string>
+#include <fstream>
+#include <sstream>
 #include "rawsocketudpconnectionmanager.h"
 #include "abshandler.h"
 
